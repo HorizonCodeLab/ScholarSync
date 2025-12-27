@@ -39,11 +39,13 @@ class CGPAScreen extends StatelessWidget {
                 Text(
                   "CGPA Calculator",
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 22,
                     color: palette.minimal,
+                    fontFamily: 'Righteous',
                   ),
                 ),
                 SizedBox(height: 25),
+                
 
                 // TOP CARD
                 Container(

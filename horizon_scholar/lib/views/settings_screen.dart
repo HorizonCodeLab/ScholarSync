@@ -69,8 +69,10 @@ class SettingsScreen extends StatelessWidget {
     return Text(
       "Settings",
       style: TextStyle(
-        fontSize: 24,
+        fontSize: 22,
         color: palette.black,
+        fontFamily: 'Righteous',
+
       ),
     );
   }

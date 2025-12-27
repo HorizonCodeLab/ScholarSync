@@ -58,8 +58,9 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
         title: Text(
           "Internal Exam Calculation",
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 22,
             color: palette.minimal,
+            fontFamily: 'Righteous',
           ),
         ),
       ),

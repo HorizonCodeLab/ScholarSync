@@ -26,8 +26,8 @@ class VisualizePerformanceScreen extends StatelessWidget {
         title: Text(
           "Visualize Performance",
           style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
+            fontSize: 22,
+            fontFamily: 'Righteous',
             color: palette.black,
           ),
         ),

@@ -67,7 +67,9 @@ class _PredictCgpaPageState extends State<PredictCgpaPage> {
     return Scaffold(
       appBar: AppBar(
         title:Text("Predict Next Semester CGPA", style: TextStyle(
-          fontSize: 20,
+          fontSize: 22,
+          fontFamily: 'Righteous',
+          color: palette.black,
         ),),
         centerTitle: true,
         elevation: 0,

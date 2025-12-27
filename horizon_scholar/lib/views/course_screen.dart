@@ -48,8 +48,9 @@ class CourseScreen extends StatelessWidget {
                 "Course Manager",
                 style: TextStyle(
                   fontSize: 22,
-                  fontWeight: FontWeight.w600,
-                  color: palette.minimal
+                  color: palette.minimal,
+                  fontFamily: 'Righteous',
+
                 ),
               ),
               const SizedBox(height: 4),

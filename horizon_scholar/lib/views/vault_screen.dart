@@ -35,8 +35,9 @@ class VaultScreen extends StatelessWidget {
                 "Document Vault",
                 style: TextStyle(
                   fontSize: 22,
-                  fontWeight: FontWeight.w600,
-                  color: palette.minimal
+                  color: palette.minimal,
+                  fontFamily: 'Righteous',
+
                 ),
               ),
               const SizedBox(height: 4),

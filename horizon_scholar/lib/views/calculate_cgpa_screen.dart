@@ -37,13 +37,13 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
       appBar: AppBar(
         backgroundColor: palette.bg,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black87),
+        iconTheme: IconThemeData(color: palette.black),
         title: Text(
           "Calculate CGPA",
           style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            fontSize: 22,
+            color: palette.black,
+            fontFamily: 'Righteous'
           ),
         ),
         centerTitle: false,
