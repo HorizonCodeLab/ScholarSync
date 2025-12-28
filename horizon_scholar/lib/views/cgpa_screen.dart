@@ -7,13 +7,16 @@ import '../controllers/cgpa_controller.dart';
 import '../controllers/cgpa_calc_controller.dart';
 import './calculate_cgpa_screen.dart';
 import '../controllers/theme_controller.dart'; 
+import '../controllers/ad_controller.dart';
+
 
 class CGPAScreen extends StatelessWidget {
   // Use Get.put so controller is available if not created yet
   final CgpaController cgpaController = Get.put(CgpaController());
   final CgpaCalcController calcController = Get.find<CgpaCalcController>();
   final ThemeController themeController = Get.find<ThemeController>();
-  
+  final AdController adController = Get.find<AdController>();
+
   @override
   Widget build(BuildContext context) {
     final palette = themeController.palette;
@@ -119,7 +122,9 @@ class CGPAScreen extends StatelessWidget {
                         padding: EdgeInsets.zero,
                       ),
                       onPressed: () {
-                        Get.to(() => CalculateInternalScreen());
+                        adController.showInterstitial(() {
+                          Get.to(() => CalculateInternalScreen());
+                        });
                       },
                       child: Container(
                         width: double.infinity,
@@ -156,7 +161,9 @@ class CGPAScreen extends StatelessWidget {
                         padding: EdgeInsets.zero,
                       ),
                       onPressed: () {
-                        Get.to(() => PredictCgpaPage());
+                        adController.showRewarded(() {
+                          Get.to(() => PredictCgpaPage());
+                        });
                       },
                       child: Container(
                         width: double.infinity,
@@ -193,7 +200,9 @@ class CGPAScreen extends StatelessWidget {
                         padding: EdgeInsets.zero,
                       ),
                       onPressed: () {
-                        Get.to(() => VisualizePerformanceScreen());
+                        adController.showRewarded(() {
+                          Get.to(() => VisualizePerformanceScreen());
+                        });
                       },
                       child: Container(
                         width: double.infinity,
@@ -321,7 +330,9 @@ class CGPAScreen extends StatelessWidget {
                     padding: EdgeInsets.zero,
                   ),
                   onPressed: () {
-                    Get.to(() => CalculateCgpaScreen());
+                    adController.showInterstitial(() {
+                      Get.to(() => CalculateCgpaScreen());
+                    });
                   },
                   child: Container(
                     width: double.infinity,

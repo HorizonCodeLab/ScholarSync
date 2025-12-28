@@ -17,6 +17,7 @@ import 'models/gpa_model.dart';
 
 import 'controllers/cgpa_calc_controller.dart';
 import 'controllers/theme_controller.dart';
+import 'controllers/ad_controller.dart';
 
 // =====
 
@@ -48,7 +49,8 @@ void main() async {
   await Hive.openBox<InternalModel>('internalBox');
 
   final settingsBox = await Hive.openBox('settingsBox');
-
+  
+  Get.put(AdController(), permanent: true);
   Get.put(CgpaCalcController(), permanent: true);
   Get.put(InternalCalcController(), permanent: true);
   Get.put(ThemeController(settingsBox), permanent: true);

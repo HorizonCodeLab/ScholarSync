@@ -238,6 +238,8 @@ class HomeScreen extends StatelessWidget {
 
                 const SizedBox(height: 26),
 
+                // ======== BANNER AD =========
+
                 Center(
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 6),

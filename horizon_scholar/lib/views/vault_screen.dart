@@ -9,12 +9,17 @@ import 'package:path/path.dart' as p;
 import '../controllers/document_controller.dart';
 import '../controllers/theme_controller.dart';
 import '../models/document_model.dart';
+import '../controllers/ad_controller.dart';
+
+
+
 
 class VaultScreen extends StatelessWidget {
   VaultScreen({super.key});
 
   final DocumentController controller = Get.put(DocumentController());
   final ThemeController themeController = Get.find<ThemeController>();
+  final AdController adController = Get.find<AdController>();
 
   @override
   Widget build(BuildContext context) {
@@ -150,6 +155,12 @@ class VaultScreen extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Document downloaded successfully")),
       );
+
+      // 👇 SHOW INTERSTITIAL AFTER DOWNLOAD
+      adController.showInterstitial(() {
+        // nothing to do after ad
+      });
+
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Download failed: $e")),
@@ -397,8 +408,12 @@ class VaultScreen extends StatelessWidget {
                               categories: selectedCategories.toList(),
                             );
 
-                            await controller.addDocument(doc);
-                            Navigator.of(ctx).pop();
+                            adController.showRewarded(() async {
+                              await controller.addDocument(doc);
+                              Navigator.of(ctx).pop();
+                            });
+
+
                           },
                           child: Padding(
                             padding:
@@ -513,6 +528,87 @@ class VaultScreen extends StatelessWidget {
         ) ??
         false; // <-- if dialog dismissed without choice
   }
+
+  void _showSupportAdDialog(VoidCallback onContinue) {
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ❌ Close button (top-left)
+              Align(
+                alignment: Alignment.topLeft,
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  splashRadius: 20,
+                  onPressed: () {
+                    Get.back();       // close dialog
+                    onContinue();     // continue without ad
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 4),
+
+              // 🎯 Title
+              const Center(
+                child: Text(
+                  "Support the App",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // 📝 Description
+              const Center(
+                child: Text(
+                  "Watch a short ad to support development and keep the app free.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // ▶ Watch Ad button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Get.back();
+                    adController.showRewarded(onContinue);
+                  },
+                  icon: const Icon(Icons.play_circle_fill),
+                  label: const Text("Watch Ad"),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: true, // tap outside also skips
+    );
+  }
+
 
 
 
@@ -719,8 +815,11 @@ class VaultScreen extends StatelessWidget {
                                 // keep any existing 'Course' tag even though chip hidden
                                 doc.categories = selectedCategories.toList();
 
-                                await controller.updateDocument(doc);
-                                Navigator.of(ctx).pop();
+                                _showSupportAdDialog(() async {
+                                  await controller.updateDocument(doc);
+                                  Navigator.of(ctx).pop();
+                                });
+
                               },
                               child: Padding(
                                 padding: EdgeInsets.symmetric(

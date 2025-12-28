@@ -8,12 +8,14 @@ import 'package:get/get.dart';
 
 import '../controllers/course_controller.dart';
 import '../controllers/theme_controller.dart';
+import '../controllers/ad_controller.dart';
+
 import '../models/course_model.dart';
 
 class CourseScreen extends StatelessWidget {
   final CourseController courseController = Get.put(CourseController());
   final ThemeController themeController = Get.find<ThemeController>();
-
+  final AdController adController = Get.find<AdController>();
 
   CourseScreen({super.key});
 
@@ -712,9 +714,7 @@ class CourseScreen extends StatelessWidget {
                         onPressed: () {
                           if (nameController.text.trim().isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Course name cannot be empty"),
-                              ),
+                              const SnackBar(content: Text("Course name cannot be empty")),
                             );
                             return;
                           }
@@ -722,16 +722,18 @@ class CourseScreen extends StatelessWidget {
                           final course = CourseModel(
                             courseName: nameController.text.trim(),
                             isCompleted: isCompleted.value,
-                            certificationPath:
-                                certPathController.text.trim(),
-                            courseDescription:
-                                descController.text.trim(),
+                            certificationPath: certPathController.text.trim(),
+                            courseDescription: descController.text.trim(),
                             categories: selectedCategories.toList(),
                           );
 
-                          courseController.addCourse(course);
-                          Navigator.of(ctx).pop();
+                          // 👇 OPTIONAL SUPPORT AD
+                          adController.showRewarded(() {
+                            courseController.addCourse(course);
+                            Navigator.of(ctx).pop();
+                          });
                         },
+
                         child: Padding(
                           padding: EdgeInsets.symmetric(
                             horizontal: 10,
@@ -1200,11 +1202,7 @@ class CourseScreen extends StatelessWidget {
                             onPressed: () {
                               if (nameController.text.trim().isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "Course name cannot be empty",
-                                    ),
-                                  ),
+                                  const SnackBar(content: Text("Course name cannot be empty")),
                                 );
                                 return;
                               }
@@ -1212,15 +1210,15 @@ class CourseScreen extends StatelessWidget {
                               final updatedCourse = CourseModel(
                                 courseName: nameController.text.trim(),
                                 isCompleted: isCompleted.value,
-                                certificationPath:
-                                    certPathController.text.trim(),
-                                courseDescription:
-                                    descController.text.trim(),
+                                certificationPath: certPathController.text.trim(),
+                                courseDescription: descController.text.trim(),
                                 categories: selectedCategories.toList(),
                               );
 
-                              courseController.updateCourse(index, updatedCourse);
-                              Navigator.of(ctx).pop();
+                              _showSupportAdDialog(() {
+                                courseController.updateCourse(index, updatedCourse);
+                                Navigator.of(ctx).pop();
+                              });
                             },
                             child: Padding(
                               padding: EdgeInsets.symmetric(
@@ -1245,6 +1243,88 @@ class CourseScreen extends StatelessWidget {
       },
     );
   }
+
+  void _showSupportAdDialog(VoidCallback onContinue) {
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ❌ Close button (top-left)
+              Align(
+                alignment: Alignment.topLeft,
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  splashRadius: 20,
+                  onPressed: () {
+                    Get.back();       // close dialog
+                    onContinue();     // continue without ad
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 4),
+
+              // 🎯 Title
+              const Center(
+                child: Text(
+                  "Support the App",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // 📝 Description
+              const Center(
+                child: Text(
+                  "Watch a short ad to support development and keep the app free.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // ▶ Watch Ad button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Get.back();
+                    adController.showRewarded(onContinue);
+                  },
+                  icon: const Icon(Icons.play_circle_fill),
+                  label: const Text("Watch Ad"),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: true, // tap outside also skips
+    );
+  }
+
+
 
   // ================== ADD CATEGORY DIALOG ==================
   void _showAddCategoryDialog(BuildContext context) {
