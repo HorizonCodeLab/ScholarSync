@@ -82,34 +82,39 @@ class _OptimizedNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: palette.theme,
-        boxShadow: [
-          BoxShadow(
-            color: palette.black.withAlpha(10),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          // Using map instead of List.generate for better performance
-          for (int index = 0; index < icons.length; index++)
-            _NavBarItem(
-              icon: icons[index],
-              label: labels[index],
-              isSelected: selectedIndex == index,
-              onTap: () => onTap(index),
-              primary: palette.primary,
-              theme: palette.theme,
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
+    return SafeArea(
+      top: false,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12*s, vertical: 10*s),
+        decoration: BoxDecoration(
+          color: palette.theme,
+          boxShadow: [
+            BoxShadow(
+              color: palette.black.withAlpha(10),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
             ),
-        ],
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            for (int index = 0; index < icons.length; index++)
+              _NavBarItem(
+                icon: icons[index],
+                label: labels[index],
+                isSelected: selectedIndex == index,
+                onTap: () => onTap(index),
+                primary: palette.primary,
+                theme: palette.theme,
+              ),
+          ],
+        ),
       ),
     );
+
   }
 }
 
@@ -133,6 +138,8 @@ class _NavBarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -151,7 +158,7 @@ class _NavBarItem extends StatelessWidget {
           children: [
             Icon(
               icon,
-              size: 22,
+              size: 22*s,
               color: isSelected ? theme : Colors.grey[700],
             ),
             if (isSelected) ...[
@@ -161,7 +168,7 @@ class _NavBarItem extends StatelessWidget {
                 style: TextStyle(
                   color: theme,
                   fontWeight: FontWeight.w600,
-                  fontSize: 12,
+                  fontSize: 12*s,
                 ),
               ),
             ],

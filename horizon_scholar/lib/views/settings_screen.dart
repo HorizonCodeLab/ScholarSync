@@ -5,8 +5,8 @@ import '../controllers/cgpa_calc_controller.dart';
 import '../controllers/cgpa_controller.dart';
 import '../controllers/course_controller.dart';
 import '../controllers/document_controller.dart';
-import '../controllers/theme_controller.dart'; // AppTheme + ThemeController + AppPalette
-//import '../widgets/banner_ad_widget.dart'; 
+import '../controllers/theme_controller.dart';
+//import '../widgets/banner_ad_widget.dart';
 
 class SettingsScreen extends StatelessWidget {
   SettingsScreen({super.key});
@@ -18,10 +18,9 @@ class SettingsScreen extends StatelessWidget {
           ? Get.find<CgpaCalcController>()
           : Get.put(CgpaCalcController());
 
-  final CgpaController cgpaController =
-      Get.isRegistered<CgpaController>()
-          ? Get.find<CgpaController>()
-          : Get.put(CgpaController());
+  final CgpaController cgpaController = Get.isRegistered<CgpaController>()
+      ? Get.find<CgpaController>()
+      : Get.put(CgpaController());
 
   final CourseController courseController =
       Get.isRegistered<CourseController>()
@@ -38,38 +37,64 @@ class SettingsScreen extends StatelessWidget {
     // Entire screen listens to theme changes
     return Obx(() {
       final palette = themeController.palette;
+      final screenSize = MediaQuery.of(context).size;
+      final screenWidth = screenSize.width;
+
+      // Improved responsive scaling
+      final isMobile = screenWidth < 600;
+      final isTablet = screenWidth >= 600 && screenWidth < 1200;
+
+      // Dynamic scaling factor with better breakpoints
+      late double s;
+      if (isMobile) {
+        s = screenWidth / 460; // Original mobile scaling
+      } else if (isTablet) {
+        s = screenWidth / 600; // Tablet scaling
+      } else {
+        s = screenWidth / 800; // Desktop scaling
+      }
+
+      // Adaptive max width for desktop
+      late double maxContentWidth;
+      if (isMobile) {
+        maxContentWidth = double.infinity;
+      } else if (isTablet) {
+        maxContentWidth = 600;
+      } else {
+        maxContentWidth = 800;
+      }
 
       return Scaffold(
         backgroundColor: palette.bg,
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(palette),
-                const SizedBox(height: 22),
-                _buildDataSection(context, palette),
-                const SizedBox(height: 22),
+            padding: EdgeInsets.fromLTRB(20 * s, 16 * s, 20 * s, 20 * s),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxContentWidth),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ---- Header ----
+                    _buildHeader(palette, s, isMobile),
 
-                // ======== BANNER AD =========
+                    SizedBox(height: 22 * s),
 
-                // Center(
-                //   child: Container(
-                //     padding: const EdgeInsets.symmetric(vertical: 6),
-                //     decoration: BoxDecoration(
-                //       color: palette.black.withAlpha(5),
-                //       borderRadius: BorderRadius.circular(12),
-                //     ),
-                //     child: const BannerAdWidget(),
-                //   ),
-                // ),
+                    // ---- Data Section ----
+                    _buildDataSection(context, palette, s, isMobile),
 
-                const SizedBox(height: 22),
-                _buildPreferencesSection(palette),
-                const SizedBox(height: 22),
-                _buildAboutSection(context, palette),
-              ],
+                    SizedBox(height: 22 * s),
+
+                    // ---- Preferences Section ----
+                    _buildPreferencesSection(palette, context, s, isMobile),
+
+                    SizedBox(height: 22 * s),
+
+                    // ---- About Section ----
+                    _buildAboutSection(context, palette, s, isMobile),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
@@ -77,120 +102,24 @@ class SettingsScreen extends StatelessWidget {
     });
   }
 
-  // ---------------------------------------------------------------------------
-  // HEADER
-  // ---------------------------------------------------------------------------
-
-  Widget _buildHeader(AppPalette palette) {
+  // ============== HEADER ==============
+  Widget _buildHeader(AppPalette palette, double s, bool isMobile) {
     return Text(
       "Settings",
       style: TextStyle(
-        fontSize: 22,
+        fontSize: isMobile ? 22 * s : 26 * s,
         color: palette.black,
         fontFamily: 'Righteous',
-
+        fontWeight: FontWeight.w700,
       ),
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // THEME SECTION
-  // ---------------------------------------------------------------------------
-
-  // Widget _buildThemeSection(AppPalette palette) {
-  //   return SizedBox(
-  //     width: double.infinity, // 👈 forces full width
-  //     child: Container(
-  //     padding: const EdgeInsets.all(16),
-  //     decoration: _cardDecoration(palette),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Text(
-  //           "Theme",
-  //           style: TextStyle(
-  //             fontSize: 14,
-  //             fontWeight: FontWeight.w600,
-  //             color: palette.black,
-  //           ),
-  //         ),
-  //         const SizedBox(height: 6),
-  //         Text(
-  //           "Pick a mood for Horizon Scholar.",
-  //           style: TextStyle(
-  //             fontSize: 11,
-  //             color: palette.black.withAlpha(150),
-  //           ),
-  //         ),
-  //         const SizedBox(height: 14),
-
-  //         /// 🔹 RESPONSIVE THEME CHIPS
-  //         LayoutBuilder(
-  //           builder: (context, constraints) {
-  //             final isWide = constraints.maxWidth > 420;
-
-  //             return Obx(
-  //               () => isWide
-  //                   ? Row(
-  //                       children: _buildExpandedThemeChips(palette),
-  //                     )
-  //                   : Wrap(
-  //                       spacing: 10,
-  //                       runSpacing: 10,
-  //                       children: _buildThemeChips(palette),
-  //                     ),
-  //             );
-  //           },
-  //         ),
-  //       ],
-  //     ),
-  //   ));
-  // }
-
-  // List<Widget> _buildExpandedThemeChips(AppPalette palette) {
-  //   return [
-  //     Expanded(child: _themeChip(palette, AppTheme.horizonblue)),
-  //     const SizedBox(width: 10),
-  //     Expanded(child: _themeChip(palette, AppTheme.evergreen)),
-  //     const SizedBox(width: 10),
-  //     Expanded(child: _themeChip(palette, AppTheme.midnightgold)),
-  //   ];
-  // }
-  // List<Widget> _buildThemeChips(AppPalette palette) {
-  //   return [
-  //     _themeChip(palette, AppTheme.horizonblue),
-  //     _themeChip(palette, AppTheme.evergreen),
-  //     _themeChip(palette, AppTheme.midnightgold),
-  //   ];
-  // }
-  // Widget _themeChip(AppPalette palette, AppTheme theme) {
-  //   final config = {
-  //     AppTheme.horizonblue: ("Horizon Blue", const Color(0xFF146C94)),
-  //     AppTheme.evergreen: ("Evergreen", const Color(0xFF2E7D32)),
-  //     AppTheme.midnightgold: ("Midnight", const Color(0xFFFFC052)),
-  //   }[theme]!;
-
-  //   return _ThemeChip(
-  //     label: config.$1,
-  //     theme: theme,
-  //     isSelected: themeController.selectedTheme.value == theme,
-  //     color: config.$2,
-  //     label_color: palette.black,
-  //     onTap: () => themeController.changeTheme(theme),
-  //   );
-  // }
-
-
-
-
-
-  // ---------------------------------------------------------------------------
-  // DATA & STORAGE SECTION
-  // ---------------------------------------------------------------------------
-
-  Widget _buildDataSection(BuildContext context, AppPalette palette) {
+  // ============== DATA & STORAGE SECTION ==============
+  Widget _buildDataSection(
+      BuildContext context, AppPalette palette, double s, bool isMobile) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16 * s),
       decoration: _cardDecoration(palette),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,20 +127,20 @@ class SettingsScreen extends StatelessWidget {
           Text(
             "Data & Storage",
             style: TextStyle(
-              fontSize: 14,
+              fontSize: isMobile ? 13 * s : 14 * s,
               fontWeight: FontWeight.w600,
               color: palette.black,
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6 * s),
           Text(
             "Manage the data stored on this device.",
             style: TextStyle(
-              fontSize: 11,
+              fontSize: isMobile ? 11 * s : 12 * s,
               color: palette.black.withAlpha(150),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12 * s),
 
           // Clear all data
           _SettingsTile(
@@ -231,13 +160,13 @@ class SettingsScreen extends StatelessWidget {
                   await courseController.clearAllCourses();
                   await documentController.clearAllDocuments();
                   Get.back();
-                  _showSnack("All data cleared");
+                  _showSnack("All data cleared", context);
                 },
               );
             },
           ),
 
-          const Divider(height: 18),
+          Divider(height: 18 * s),
 
           // Clear CGPA data
           _SettingsTile(
@@ -255,7 +184,7 @@ class SettingsScreen extends StatelessWidget {
                 onConfirm: () async {
                   await cgpaCalcController.clearAllCgpaData();
                   Get.back();
-                  _showSnack("CGPA data cleared");
+                  _showSnack("CGPA data cleared", context);
                 },
               );
             },
@@ -277,7 +206,7 @@ class SettingsScreen extends StatelessWidget {
                 onConfirm: () async {
                   await courseController.clearAllCourses();
                   Get.back();
-                  _showSnack("Course data cleared");
+                  _showSnack("Course data cleared", context);
                 },
               );
             },
@@ -299,7 +228,7 @@ class SettingsScreen extends StatelessWidget {
                 onConfirm: () async {
                   await documentController.clearAllDocuments();
                   Get.back();
-                  _showSnack("Documents cleared");
+                  _showSnack("Documents cleared", context);
                 },
               );
             },
@@ -309,16 +238,14 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // EXPERIENCE / EXTRA PREFERENCES
-  // ---------------------------------------------------------------------------
-
-  Widget _buildPreferencesSection(AppPalette palette) {
+  // ============== PREFERENCES SECTION ==============
+  Widget _buildPreferencesSection(
+      AppPalette palette, BuildContext context, double s, bool isMobile) {
     final RxBool haptics = true.obs;
     final RxBool smartTips = true.obs;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16 * s),
       decoration: _cardDecoration(palette),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -326,20 +253,20 @@ class SettingsScreen extends StatelessWidget {
           Text(
             "Experience",
             style: TextStyle(
-              fontSize: 14,
+              fontSize: isMobile ? 13 * s : 14 * s,
               fontWeight: FontWeight.w600,
               color: palette.black,
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6 * s),
           Text(
             "Fine-tune how the app behaves.",
             style: TextStyle(
-              fontSize: 11,
+              fontSize: isMobile ? 11 * s : 12 * s,
               color: palette.black.withAlpha(150),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12 * s),
 
           Obx(
             () => _SettingsSwitchTile(
@@ -353,7 +280,7 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 6),
+          SizedBox(height: 6 * s),
 
           Obx(
             () => _SettingsSwitchTile(
@@ -371,13 +298,11 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // ABOUT SECTION
-  // ---------------------------------------------------------------------------
-
-  Widget _buildAboutSection(BuildContext context, AppPalette palette) {
+  // ============== ABOUT SECTION ==============
+  Widget _buildAboutSection(
+      BuildContext context, AppPalette palette, double s, bool isMobile) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16 * s),
       decoration: _cardDecoration(palette),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -385,12 +310,12 @@ class SettingsScreen extends StatelessWidget {
           Text(
             "About",
             style: TextStyle(
-              fontSize: 14,
+              fontSize: isMobile ? 13 * s : 14 * s,
               fontWeight: FontWeight.w600,
               color: palette.black,
             ),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10 * s),
           _SettingsTile(
             icon: Icons.info_outline_rounded,
             iconColor: palette.primary,
@@ -398,99 +323,7 @@ class SettingsScreen extends StatelessWidget {
             title: "About Horizon Scholar",
             subtitle: "Version 1.0.0 • Made for students",
             onTap: () {
-              showModalBottomSheet(
-                context: context,
-                backgroundColor: palette.accent,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
-                ),
-                builder: (_) {
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Center(
-                          child: Container(
-                            width: 42,
-                            height: 4,
-                            margin: const EdgeInsets.only(bottom: 14),
-                            decoration: BoxDecoration(
-                              color: palette.black.withAlpha(150),
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                          ),
-                        ),
-                        Row(
-                          children: [
-                          Container(
-                            padding: const EdgeInsets.all(6), // space between border & image
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: palette.primary.withAlpha(50),
-                                width: 1,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8), // inner radius
-                              child: Image.asset(
-                                'assets/logo.png',
-                                width: 48,
-                                height: 48,
-                                fit: BoxFit.contain,
-                              ),
-                            ),
-                          ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Horizon Scholar",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "Your academic companion for CGPA, courses and documents.",
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: palette.black.withAlpha(150),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          "Built by Horizon Code Lab",
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: palette.black,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          "This app helps you track semesters, organize course info and keep important documents safe in one place.",
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: palette.black.withAlpha(150),
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-                        
-                      ],
-                    ),
-                  );
-                },
-              );
+              _showAboutBottomSheet(context, palette, s, isMobile);
             },
           ),
         ],
@@ -498,10 +331,109 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // HELPERS
-  // ---------------------------------------------------------------------------
+  // ============== ABOUT BOTTOM SHEET ==============
+  void _showAboutBottomSheet(
+      BuildContext context, AppPalette palette, double s, bool isMobile) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: palette.accent,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+      ),
+      builder: (_) {
+        return Padding(
+          padding: EdgeInsets.fromLTRB(20 * s, 18 * s, 20 * s, 24 * s),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Drag indicator
+              Center(
+                child: Container(
+                  width: 42 * s,
+                  height: 4 * s,
+                  margin: EdgeInsets.only(bottom: 14 * s),
+                  decoration: BoxDecoration(
+                    color: palette.black.withAlpha(150),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+              ),
 
+              // App header
+              Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(6 * s),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: palette.primary.withAlpha(50),
+                        width: 1,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.asset(
+                        'assets/logo.png',
+                        width: 48 * s,
+                        height: 48 * s,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 12 * s),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Horizon Scholar",
+                          style: TextStyle(
+                            fontSize: isMobile ? 15 * s : 16 * s,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          "Your academic companion for CGPA, courses and documents.",
+                          style: TextStyle(
+                            fontSize: isMobile ? 10 * s : 11 * s,
+                            color: palette.black.withAlpha(150),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 16 * s),
+
+              Text(
+                "Built by Horizon Code Lab",
+                style: TextStyle(
+                  fontSize: isMobile ? 11 * s : 12 * s,
+                  fontWeight: FontWeight.w500,
+                  color: palette.black,
+                ),
+              ),
+              SizedBox(height: 4 * s),
+              Text(
+                "This app helps you track semesters, organize course info and keep important documents safe in one place.",
+                style: TextStyle(
+                  fontSize: isMobile ? 10 * s : 11 * s,
+                  color: palette.black.withAlpha(150),
+                ),
+              ),
+              SizedBox(height: 14 * s),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // ============== HELPERS ==============
   BoxDecoration _cardDecoration(AppPalette palette) {
     return BoxDecoration(
       color: palette.accent,
@@ -526,6 +458,17 @@ class SettingsScreen extends StatelessWidget {
     String currentText = '';
 
     final palette = themeController.palette;
+    final screenSize = MediaQuery.of(context).size;
+    final screenWidth = screenSize.width;
+
+    late double s;
+    if (screenWidth < 600) {
+      s = screenWidth / 460;
+    } else if (screenWidth >= 600 && screenWidth < 1200) {
+      s = screenWidth / 600;
+    } else {
+      s = screenWidth / 800;
+    }
 
     Get.dialog(
       StatefulBuilder(
@@ -539,12 +482,14 @@ class SettingsScreen extends StatelessWidget {
             title: Row(
               children: [
                 Icon(Icons.warning_amber_rounded, color: palette.error),
-                const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                SizedBox(width: 8 * s),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 14 * s,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
@@ -556,11 +501,11 @@ class SettingsScreen extends StatelessWidget {
                 Text(
                   message,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 12 * s,
                     color: palette.black.withAlpha(150),
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12 * s),
                 TextField(
                   controller: controller,
                   onChanged: (val) {
@@ -568,9 +513,10 @@ class SettingsScreen extends StatelessWidget {
                       currentText = val;
                     });
                   },
+                  style: TextStyle(fontSize: 13 * s),
                   decoration: InputDecoration(
                     labelText: 'Type "delete" to confirm',
-                    labelStyle: TextStyle(fontSize: 12),
+                    labelStyle: TextStyle(fontSize: 12 * s),
                     filled: true,
                     fillColor: palette.black.withAlpha(20),
                     border: OutlineInputBorder(
@@ -586,7 +532,10 @@ class SettingsScreen extends StatelessWidget {
                 onPressed: () => Get.back(),
                 child: Text(
                   "Cancel",
-                  style: TextStyle(fontSize: 12, color: palette.black.withAlpha(200)),
+                  style: TextStyle(
+                    fontSize: 12 * s,
+                    color: palette.black.withAlpha(200),
+                  ),
                 ),
               ),
               ElevatedButton(
@@ -605,7 +554,7 @@ class SettingsScreen extends StatelessWidget {
                 child: Text(
                   "Delete",
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 12 * s,
                     color: palette.accent,
                   ),
                 ),
@@ -617,102 +566,42 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  void _showSnack(String message) {
+  void _showSnack(String message, BuildContext context) {
     final palette = themeController.palette;
+    
+    // Use a smaller, fixed scaling factor for the snackbar to keep it compact
+    final double s = MediaQuery.of(context).size.width < 600 ? 1.0 : 0.8;
 
-    Get.snackbar(
-      "Settings",
-      message,
+    Get.rawSnackbar(
+      messageText: Text(
+        message,
+        textAlign: TextAlign.start,
+        style: TextStyle(
+          color: palette.accent,
+          fontSize: 13 * s,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      // This makes it float and stay small
+      //maxWidth: 300 * s, 
       snackPosition: SnackPosition.BOTTOM,
-      margin: const EdgeInsets.all(12),
-      backgroundColor: palette.accent,
-      borderRadius: 12,
+      //margin: EdgeInsets.only(bottom: 40 * s, left: 20, right: 20),
+      padding: EdgeInsets.symmetric(horizontal: 16 * s, vertical: 10 * s),
+      backgroundColor: palette.error,
+      animationDuration: const Duration(milliseconds: 300),
+      duration: const Duration(seconds: 2),
       boxShadows: [
         BoxShadow(
-          color: palette.black.withAlpha(10),
-          blurRadius: 8,
-          offset: const Offset(0, 3),
+          color: palette.black.withAlpha(20),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
         ),
       ],
     );
   }
 }
 
-// ---------------------------------------------------------------------------
-// THEME CHIP
-// ---------------------------------------------------------------------------
-
-// class _ThemeChip extends StatelessWidget {
-//   final String label;
-//   final AppTheme theme;
-//   final bool isSelected;
-//   final Color color;
-//   final Color label_color;
-//   final VoidCallback onTap;
-
-//   const _ThemeChip({
-//     required this.label,
-//     required this.theme,
-//     required this.isSelected,
-//     required this.color,
-//     required this.label_color,
-//     required this.onTap,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return InkWell(
-//       borderRadius: BorderRadius.circular(20),
-//       onTap: onTap,
-//       child: Ink(
-//         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-//         decoration: BoxDecoration(
-//           color: isSelected ? color.withOpacity(0.09) : Colors.white,
-//           borderRadius: BorderRadius.circular(20),
-//           border: Border.all(
-//             color: isSelected ? color : Colors.grey.shade300,
-//             width: 1.1,
-//           ),
-//           boxShadow: [
-//             if (isSelected)
-//               BoxShadow(
-//                 color: Colors.black.withOpacity(0.05),
-//                 blurRadius: 6,
-//                 offset: const Offset(0, 3),
-//               ),
-//           ],
-//         ),
-//         child: Row(
-//           mainAxisSize: MainAxisSize.min,
-//           children: [
-//             Container(
-//               width: 14,
-//               height: 14,
-//               decoration: BoxDecoration(
-//                 color: color,
-//                 shape: BoxShape.circle,
-//               ),
-//             ),
-//             const SizedBox(width: 8),
-//             Text(
-//               label,
-//               style: TextStyle(
-//                 fontSize: 12,
-//                 fontWeight: FontWeight.w500,
-//                 color: label_color,
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// ---------------------------------------------------------------------------
-// BASIC SETTINGS TILE
-// ---------------------------------------------------------------------------
-
+// ============== SETTINGS TILE ==============
 class _SettingsTile extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
@@ -732,22 +621,34 @@ class _SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final screenWidth = screenSize.width;
+
+    late double s;
+    if (screenWidth < 600) {
+      s = screenWidth / 460;
+    } else if (screenWidth >= 600 && screenWidth < 1200) {
+      s = screenWidth / 600;
+    } else {
+      s = screenWidth / 800;
+    }
+
     return InkWell(
       borderRadius: BorderRadius.circular(14),
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
+        padding: EdgeInsets.symmetric(vertical: 6 * s),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(8 * s),
               decoration: BoxDecoration(
                 color: iconColor.withAlpha(30),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Icon(icon, size: 20, color: iconColor),
+              child: Icon(icon, size: 20 * s, color: iconColor),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12 * s),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -755,17 +656,17 @@ class _SettingsTile extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 13 * s,
                       fontWeight: FontWeight.w500,
                       color: textColor,
                     ),
                   ),
                   if (subtitle != null) ...[
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2 * s),
                     Text(
                       subtitle!,
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 11 * s,
                         color: textColor.withAlpha(150),
                       ),
                     ),
@@ -773,7 +674,8 @@ class _SettingsTile extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, size: 18, color: textColor.withAlpha(200)),
+            Icon(Icons.chevron_right_rounded,
+                size: 18 * s, color: textColor.withAlpha(200)),
           ],
         ),
       ),
@@ -781,10 +683,7 @@ class _SettingsTile extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-// SWITCH TILE
-// ---------------------------------------------------------------------------
-
+// ============== SWITCH TILE ==============
 class _SettingsSwitchTile extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
@@ -806,17 +705,29 @@ class _SettingsSwitchTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final screenWidth = screenSize.width;
+
+    late double s;
+    if (screenWidth < 600) {
+      s = screenWidth / 460;
+    } else if (screenWidth >= 600 && screenWidth < 1200) {
+      s = screenWidth / 600;
+    } else {
+      s = screenWidth / 800;
+    }
+
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: EdgeInsets.all(8 * s),
           decoration: BoxDecoration(
             color: iconColor.withAlpha(30),
             borderRadius: BorderRadius.circular(14),
           ),
-          child: Icon(icon, size: 20, color: iconColor),
+          child: Icon(icon, size: 20 * s, color: iconColor),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12 * s),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -824,17 +735,17 @@ class _SettingsSwitchTile extends StatelessWidget {
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 13 * s,
                   fontWeight: FontWeight.w500,
                   color: textColor,
                 ),
               ),
               if (subtitle != null) ...[
-                const SizedBox(height: 2),
+                SizedBox(height: 2 * s),
                 Text(
                   subtitle!,
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 11 * s,
                     color: textColor.withAlpha(150),
                   ),
                 ),

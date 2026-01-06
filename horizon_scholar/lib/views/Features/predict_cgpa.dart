@@ -65,10 +65,12 @@ class _PredictCgpaPageState extends State<PredictCgpaPage> {
   @override
   Widget build(BuildContext context) {
     final palette = themeController.palette;
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
     return Scaffold(
       appBar: AppBar(
         title:Text("Predict Next Semester CGPA", style: TextStyle(
-          fontSize: 22,
+          fontSize: 20*s,
           fontFamily: 'Righteous',
           color: palette.accent,
         ),),
@@ -78,7 +80,7 @@ class _PredictCgpaPageState extends State<PredictCgpaPage> {
         foregroundColor: palette.white,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20*s),
         child: Center(
           child: error != null
               ? Text(
@@ -102,21 +104,21 @@ class _PredictCgpaPageState extends State<PredictCgpaPage> {
                 ).createShader(bounds),
                 child: Icon(
                   Icons.auto_awesome,
-                  size: 64,
+                  size: 64*s,
                   color: palette.accent,
                 ),
               ),
 
 
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16*s),
 
               
 
               Text(
                 predictedGpa!.toString(),
                 style: TextStyle(
-                  fontSize: 48,
+                  fontSize: 48*s,
                   fontWeight: FontWeight.bold,
                   foreground: Paint()
                     ..shader = const LinearGradient(
@@ -141,27 +143,27 @@ class _PredictCgpaPageState extends State<PredictCgpaPage> {
               Text(
                 "Predicted GPA for ${semesterData.last.semester + 1} Semester",
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 16*s,
                   fontWeight: FontWeight.w500,
                   color: palette.black.withAlpha(150),
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20*s),
               
               Card(
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12*s),
                 ),
                 color: palette.primary,
                 elevation: 0,
                 
                 child: Padding(
-                  padding: const EdgeInsets.all(18),
+                  padding: EdgeInsets.all(18*s),
                   child: Column(
                     children: semesterData.map((item) {
                       return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        padding: EdgeInsets.symmetric(vertical: 4*s),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -170,6 +172,7 @@ class _PredictCgpaPageState extends State<PredictCgpaPage> {
                               style: TextStyle(
                                 color: palette.accent,
                                 fontWeight: FontWeight.w500,
+                                fontSize: 14*s
                               ),
                             ),
                             Text(
@@ -177,6 +180,7 @@ class _PredictCgpaPageState extends State<PredictCgpaPage> {
                               style: TextStyle(
                                 color: palette.accent,
                                 fontWeight: FontWeight.w600,
+                                fontSize: 14*s
                               ),
                             ),
                           ],

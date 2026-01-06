@@ -17,7 +17,8 @@ class VisualizePerformanceScreen extends StatelessWidget {
     final ThemeController themeController = Get.find<ThemeController>();
 
     final palette = themeController.palette;
-
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
     return Scaffold(
       backgroundColor: palette.bg,
       appBar: AppBar(
@@ -27,7 +28,7 @@ class VisualizePerformanceScreen extends StatelessWidget {
         title: Text(
           "Visualize Performance",
           style: TextStyle(
-            fontSize: 22,
+            fontSize: 22*s,
             fontFamily: 'Righteous',
             color: palette.black,
           ),
@@ -41,7 +42,7 @@ class VisualizePerformanceScreen extends StatelessWidget {
           return Center(
             child: Text(
               "No GPA data available yet",
-              style: TextStyle(fontSize: 14),
+              style: TextStyle(fontSize: 14*s),
             ),
           );
         }
@@ -70,7 +71,7 @@ class VisualizePerformanceScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: palette.primary,
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(18*s),
                 ),
                 child:Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -82,7 +83,7 @@ class VisualizePerformanceScreen extends StatelessWidget {
                             cgpa.toStringAsFixed(2),
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
-                              fontSize: 35,
+                              fontSize: 35*s,
                               color:  palette.accent,
                             ),
                           ),
@@ -92,7 +93,7 @@ class VisualizePerformanceScreen extends StatelessWidget {
                             "Current CGPA",
                             style: TextStyle(
                               fontWeight: FontWeight.w400,
-                              fontSize: 14,
+                              fontSize: 14*s,
                               color:
                                   palette.accent,
                             ),
@@ -103,7 +104,7 @@ class VisualizePerformanceScreen extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.bar_chart_outlined,
-                            size: 50,
+                            size: 50*s,
                             color: palette.accent,
                           ),
                         ],
@@ -112,17 +113,17 @@ class VisualizePerformanceScreen extends StatelessWidget {
                   ),
               ),
 
-              SizedBox(height: 20),
+              SizedBox(height: 20*s),
               //BannerAdWidget(),
-              const SizedBox(height: 20),
+              SizedBox(height: 20*s),
 
               // ---------------- PIE CHART ----------------
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16*s),
                 decoration: BoxDecoration(
                   color: palette.accent,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(16*s),
                 ),
                 child: Column(
 
@@ -132,19 +133,19 @@ class VisualizePerformanceScreen extends StatelessWidget {
                       child: Text(
                         "GPA Distribution",
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 15*s,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10*s),
                     GpaPieChart(gpaPerSem: gpaMap),
                   ],
                 )
               ),
               
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16*s),
 
               
 
@@ -154,7 +155,7 @@ class VisualizePerformanceScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: palette.accent,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(16*s),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,41 +163,41 @@ class VisualizePerformanceScreen extends StatelessWidget {
                     Text(
                       "Performance Insights",
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 15*s,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8*s),
                     Text(
                       improving
                           ? "📈 Your performance is improving."
                           : "⚠️ Your performance needs attention.",
-                      style: TextStyle(fontSize: 13),
+                      style: TextStyle(fontSize: 13*s),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4*s),
                     Text(
                       "🔥 Best Semester: Sem ${best.key} (GPA ${best.value.toStringAsFixed(2)})",
-                      style: TextStyle(fontSize: 13),
+                      style: TextStyle(fontSize: 13*s),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4*s),
                     Text(
                       "❄️ Lowest Semester: Sem ${lowest.key} (GPA ${lowest.value.toStringAsFixed(2)})",
-                      style: TextStyle(fontSize: 13),
+                      style: TextStyle(fontSize: 13*s),
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 22),
+              SizedBox(height: 22*s),
 
                // ---------------- BAR CHART ----------------
 
                Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16*s),
                 decoration: BoxDecoration(
                   color: palette.accent,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(16*s),
                 ),
                 child: Column(
                   children: [
@@ -205,28 +206,28 @@ class VisualizePerformanceScreen extends StatelessWidget {
                       child: Text(
                         "Semester GPA Trend",
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 15*s,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10*s),
                     SemesterGpaBarChart(gpaPerSem: gpaMap),
                   ],
                 ),
               ),
               
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24*s),
 
               // ---------------- GPA LIST ----------------
 
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16*s),
                 decoration: BoxDecoration(
                   color: palette.accent,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(16*s),
                 ),
                 child: Column(
                   children: [
@@ -235,23 +236,23 @@ class VisualizePerformanceScreen extends StatelessWidget {
                       child: Text(
                         "Semester-wise GPA",
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 15*s,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8*s),
 
                     ...sorted.map(
                       (e) => Container(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 12,
+                        margin: EdgeInsets.only(bottom: 10*s),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 14*s,
+                          vertical: 12*s,
                         ),
                         decoration: BoxDecoration(
                           color: palette.primary,
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(14*s),
                           boxShadow: [
                             BoxShadow(
                               blurRadius: 4,
@@ -266,7 +267,7 @@ class VisualizePerformanceScreen extends StatelessWidget {
                             Text(
                               "Semester ${e.key}",
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: 14*s,
                                 color: palette.accent,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -274,7 +275,7 @@ class VisualizePerformanceScreen extends StatelessWidget {
                             Text(
                               e.value.toStringAsFixed(2),
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 16*s,
                                 fontWeight: FontWeight.w700,
                                 color: palette.accent,
                               ),

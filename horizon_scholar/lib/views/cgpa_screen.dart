@@ -20,6 +20,8 @@ class CGPAScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = themeController.palette;
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
     return Scaffold(
       backgroundColor: palette.bg,
       body: SafeArea(
@@ -34,7 +36,7 @@ class CGPAScreen extends StatelessWidget {
 
 
           return SingleChildScrollView(
-            padding: EdgeInsets.all(20),
+            padding: EdgeInsets.all(20*s),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -42,22 +44,22 @@ class CGPAScreen extends StatelessWidget {
                 Text(
                   "CGPA Calculator",
                   style: TextStyle(
-                    fontSize: 22,
+                    fontSize: 22*s,
                     color: palette.minimal,
                     fontFamily: 'Righteous',
                   ),
                 ),
-                SizedBox(height: 25),
+                SizedBox(height: 25*s),
                 
 
                 // TOP CARD
                 Container(
                   width: double.infinity,
                   padding:
-                      EdgeInsets.symmetric(vertical: 40, horizontal: 30),
+                      EdgeInsets.symmetric(vertical: 40*s, horizontal: 30*s),
                   decoration: BoxDecoration(
                     color: palette.primary,
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(15*s),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -69,7 +71,7 @@ class CGPAScreen extends StatelessWidget {
                             "$percentage%",
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
-                              fontSize: 50,
+                              fontSize: 45*s,
                               color:palette.accent,
                             ),
                           ),
@@ -82,17 +84,17 @@ class CGPAScreen extends StatelessWidget {
                             cgpa.toStringAsFixed(2),
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
-                              fontSize: 35,
+                              fontSize: 30*s,
                               color:  palette.accent,
                             ),
                           ),
-                          SizedBox(height: 0),
+                          SizedBox(height: 5*s),
                           Text(
                             // previously: "CGPA Upto Sem ${"8"}",
                             "CGPA Upto Sem ${currentSem == 0 ? "-" : currentSem}",
                             style: TextStyle(
                               fontWeight: FontWeight.w400,
-                              fontSize: 14,
+                              fontSize: 14*s,
                               color:
                                   palette.accent,
                             ),
@@ -103,7 +105,7 @@ class CGPAScreen extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(height: 25),
+                SizedBox(height: 25*s),
 
                 // FEATURE GRID
                 GridView.count(
@@ -117,7 +119,7 @@ class CGPAScreen extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: palette.secondary,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(15*s),
                         ),
                         padding: EdgeInsets.zero,
                       ),
@@ -144,23 +146,23 @@ class CGPAScreen extends StatelessWidget {
                       },
                       child: Container(
                         width: double.infinity,
-                        padding: EdgeInsets.all(5),
+                        padding: EdgeInsets.all(5*s),
                         decoration: BoxDecoration(
                           color: palette.secondary,
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(15*s),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.functions,
-                                color: palette.primary, size: 25),
-                            SizedBox(height: 12),
+                                color: palette.primary, size: 25*s),
+                            SizedBox(height: 12*s),
                             Text(
                               "Internal Marks\nCalculation",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
-                                fontSize: 12,
+                                fontSize: 12*s,
                                 color: palette.black,
                               ),
                             ),
@@ -192,23 +194,23 @@ class CGPAScreen extends StatelessWidget {
                       },
                       child: Container(
                         width: double.infinity,
-                        padding: EdgeInsets.all(5),
+                        padding: EdgeInsets.all(5*s),
                         decoration: BoxDecoration(
                           color: palette.secondary,
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(15*s),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.auto_awesome,
-                                color: palette.primary, size: 25),
-                            SizedBox(height: 12),
+                                color: palette.primary, size: 25*s),
+                            SizedBox(height: 12*s),
                             Text(
                               "Predict CGPA\nwith GPA",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
-                                fontSize: 12,
+                                fontSize: 12*s,
                                 color: palette.black,
                               ),
                             ),
@@ -240,23 +242,23 @@ class CGPAScreen extends StatelessWidget {
                       },
                       child: Container(
                         width: double.infinity,
-                        padding: EdgeInsets.all(5),
+                        padding: EdgeInsets.all(5*s),
                         decoration: BoxDecoration(
                           color: palette.secondary,
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(15*s),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.bar_chart,
-                                color: palette.primary, size: 25),
-                            SizedBox(height: 12),
+                                color: palette.primary, size: 25*s),
+                            SizedBox(height: 12*s),
                             Text(
                               "Virtualize\nPerformance",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
-                                fontSize: 12,
+                                fontSize: 12*s,
                                 color: palette.black,
                               ),
                             ),
@@ -267,17 +269,17 @@ class CGPAScreen extends StatelessWidget {
                   ],
                 ),
 
-                SizedBox(height: 40),
+                SizedBox(height: 40*s),
 
                 // GPA TABLE (still static UI here; you can later wire it to gpaBox)
                 Container(
                   width: double.infinity,
-                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  padding: EdgeInsets.symmetric(horizontal: 20*s),
                   child: Table(
                     border: TableBorder(
                       horizontalInside: BorderSide(
                         color: palette.black.withAlpha(100), // line color
-                        width: 1, // line thickness
+                        width: 1*s, // line thickness
                       ),
                       // Remove all outer borders
                       top: BorderSide.none,
@@ -289,26 +291,26 @@ class CGPAScreen extends StatelessWidget {
                     children: [
                       TableRow(children: [
                         Padding(
-                          padding: EdgeInsets.all(8),
+                          padding: EdgeInsets.all(8*s),
                           child: Text(
                             "Semester",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
-                              fontSize: 16,
+                              fontSize: 16*s,
                               color: palette.minimal,
                             ),
                           ),
                         ),
                         SizedBox(),
                         Padding(
-                          padding: EdgeInsets.all(8),
+                          padding: EdgeInsets.all(8*s),
                           child: Text(
                             "GPA",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
-                              fontSize: 16,
+                              fontSize: 16*s,
                               color: palette.minimal,
                             ),
                           ),
@@ -322,26 +324,26 @@ class CGPAScreen extends StatelessWidget {
 
                         return TableRow(children: [
                           Padding(
-                            padding: EdgeInsets.all(8),
+                            padding: EdgeInsets.all(8*s),
                             child: Text(
                               sem.toString().padLeft(2, '0'),
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
-                                fontSize: 14,
+                                fontSize: 14*s,
                                 color: palette.primary,
                               ),
                             ),
                           ),
                           SizedBox(),
                           Padding(
-                            padding: EdgeInsets.all(8),
+                            padding: EdgeInsets.all(8*s),
                             child: Text(
                               gpa == null ? "--" : gpa.toStringAsFixed(2),
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
-                                fontSize: 14,
+                                fontSize: 14*s,
                                 color: palette.primary,
                               ),
                             ),
@@ -352,7 +354,7 @@ class CGPAScreen extends StatelessWidget {
 
                   ),
                 ),
-                SizedBox(height: 40),
+                SizedBox(height: 40*s),
 
                 // BOTTOM BUTTON
                 ElevatedButton(
@@ -387,23 +389,23 @@ class CGPAScreen extends StatelessWidget {
                   child: Container(
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(
-                        vertical: 20, horizontal: 5),
+                        vertical: 20*s, horizontal: 5*s),
                     decoration: BoxDecoration(
                       color: palette.primary,
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(15*s),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.calculate,
-                            color: palette.accent, size: 25),
-                        SizedBox(width: 10),
+                            color: palette.accent, size: 25*s),
+                        SizedBox(width: 10*s),
                         Text(
                           "Calculate CGPA",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
-                            fontSize: 18,
+                            fontSize: 18*s,
                             color: palette.accent,
                           ),
                         ),

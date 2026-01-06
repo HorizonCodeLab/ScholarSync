@@ -29,7 +29,9 @@ class HomeScreen extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Obx(() {
     final palette = themeController.palette;
-
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
+    print(w.toString()+"----"+s.toString());
     return Scaffold(
       backgroundColor: palette.bg,
       body: SafeArea(
@@ -45,7 +47,7 @@ class HomeScreen extends GetView<HomeController> {
           final recentDocs = documentController.documents.reversed.take(3).toList();
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 5),
+            padding: EdgeInsets.fromLTRB(20*s, 16*s, 20*s, 5*s),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -60,7 +62,7 @@ class HomeScreen extends GetView<HomeController> {
                     Text(
                       "Horizon Scholar",
                       style: TextStyle(
-                        fontSize: 22,
+                        fontSize: 22*s,
                         color: palette.minimal,
                         fontFamily: 'Righteous',
                       ),
@@ -68,18 +70,18 @@ class HomeScreen extends GetView<HomeController> {
                   ],
                 ),
 
-                const SizedBox(height: 6),
+                SizedBox(height: 6*s),
 
 
                 Text(
                   "Welcome back !",
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14*s,
                     color: palette.black.withAlpha(150),
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                SizedBox(height: 20*s),
 
 
                 // ======== TOP CGPA CARD =========
@@ -87,10 +89,10 @@ class HomeScreen extends GetView<HomeController> {
 
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.only(top: 20, bottom: 20,right: 18, left: 30),
+                  padding: EdgeInsets.only(top: 20*s, bottom: 20*s,right: 18*s, left: 30*s),
                   decoration: BoxDecoration(
                     color: palette.primary,
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(18*s),
                     boxShadow: [
                       BoxShadow(
                         color: palette.black.withAlpha(10),
@@ -111,15 +113,15 @@ class HomeScreen extends GetView<HomeController> {
                               cgpa == 0.0 ? "--" : cgpa.toStringAsFixed(2),
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
-                                fontSize: 46,
+                                fontSize: 40*s,
                                 color: palette.accent,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            SizedBox(height: 4*s),
                             Text(
                               "Current CGPA",
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: 14*s,
                                 color: palette.accent.withAlpha(200),
                               ),
                             ),
@@ -127,26 +129,26 @@ class HomeScreen extends GetView<HomeController> {
                         ),
                       ),
 
-                      const SizedBox(width: 10),
+                      SizedBox(width: 10*s),
 
                       // Right: sem info + button
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            padding: EdgeInsets.symmetric(horizontal: 10*s, vertical: 6*s),
                             decoration: BoxDecoration(
                               color: palette.primary,
-                              borderRadius: BorderRadius.circular(999),
+                              borderRadius: BorderRadius.circular(999*s),
                             ),
                             child: Row(
                               children: [
-                                Icon(Icons.timeline_outlined, size: 17, color: palette.accent),
-                                const SizedBox(width: 10),
+                                Icon(Icons.timeline_outlined, size: 17*s, color: palette.accent),
+                                SizedBox(width: 10*s),
                                 Text(
                                   currentSem == 0 ? "No semesters added" : "Upto Sem $currentSem",
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 14*s,
                                     fontWeight: FontWeight.w500,
                                     color: palette.accent,
                                   ),
@@ -154,12 +156,12 @@ class HomeScreen extends GetView<HomeController> {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16*s),
                           ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: palette.bg,
                               elevation: 0,
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              padding: EdgeInsets.symmetric(horizontal: 14*s, vertical: 8*s),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -179,9 +181,9 @@ class HomeScreen extends GetView<HomeController> {
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ).createShader(bounds),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.auto_awesome,
-                                size: 22, // 🔽 64 was too big for a button
+                                size: 20*s, // 🔽 64 was too big for a button
                                 color: Colors.white, // REQUIRED for ShaderMask
                               ),
                             ),
@@ -190,7 +192,7 @@ class HomeScreen extends GetView<HomeController> {
                             label: Text(
                               "Try New AI Features",
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 12*s,
                                 fontWeight: FontWeight.w500,
                                 color: palette.black,
                               ),
@@ -202,7 +204,7 @@ class HomeScreen extends GetView<HomeController> {
                   ),
                 ),
 
-                const SizedBox(height: 22),
+                SizedBox(height: 22*s),
 
                 // STATS CARDS ROW
                 Row(
@@ -218,7 +220,7 @@ class HomeScreen extends GetView<HomeController> {
                         black: palette.black,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12*s),
                     Expanded(
                       child: _StatCard(
                         title: "Documents saved",
@@ -233,7 +235,7 @@ class HomeScreen extends GetView<HomeController> {
                   ],
                 ),
 
-                const SizedBox(height: 26),
+                SizedBox(height: 26*s),
 
                 // ======== BANNER AD =========
 
@@ -270,7 +272,7 @@ class HomeScreen extends GetView<HomeController> {
                     Text(
                       "Quick actions",
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14*s,
                         fontWeight: FontWeight.w600,
                         color: palette.black,
                       ),
@@ -278,14 +280,14 @@ class HomeScreen extends GetView<HomeController> {
                     Text(
                       "Tap to open",
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 11*s,
                         color: palette.black.withAlpha(150),
                       ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 12),
+                SizedBox(height: 12*s),
 
                 // QUICK ACTION GRID
                 GridView.count(
@@ -331,26 +333,26 @@ class HomeScreen extends GetView<HomeController> {
                   ],
                 ),
 
-                const SizedBox(height: 26),
+                SizedBox(height: 26*s),
 
                 // RECENT DOCUMENTS / FILL EMPTY SPACE USEFULLY
                 Text(
                   "Recent documents",
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14*s,
                     fontWeight: FontWeight.w600,
                     color: palette.black,
                   ),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10*s),
 
                 if (recentDocs.isEmpty)
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+                    padding: EdgeInsets.symmetric(horizontal: 14*s, vertical: 16*s),
                     decoration: BoxDecoration(
                       color: palette.accent,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(16*s),
                       boxShadow: [
                         BoxShadow(
                           color: palette.black.withOpacity(0.04),
@@ -362,23 +364,23 @@ class HomeScreen extends GetView<HomeController> {
                     child: Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(8),
+                          padding: EdgeInsets.all(12*s),
                           decoration: BoxDecoration(
                             color: palette.primary.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(12*s),
                           ),
                           child: Icon(
                             Icons.insert_drive_file_outlined,
                             color: palette.primary,
-                            size: 22,
+                            size: 25*s,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12*s),
                         Expanded(
                           child: Text(
                             "No documents yet.\nSave your certificates, notes and PDFs in the Vault.",
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 12*s,
                               color: palette.black.withAlpha(200),
                             ),
                           ),
@@ -390,11 +392,11 @@ class HomeScreen extends GetView<HomeController> {
                   Column(
                     children: recentDocs.map((doc) {
                       return Container(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                        margin: EdgeInsets.only(bottom: 10*s),
+                        padding: EdgeInsets.symmetric(horizontal: 12*s, vertical: 12*s),
                         decoration: BoxDecoration(
                           color: palette.accent,
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(16*s),
                           boxShadow: [
                             BoxShadow(
                               color: palette.black.withOpacity(0.04),
@@ -406,18 +408,18 @@ class HomeScreen extends GetView<HomeController> {
                         child: Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(8),
+                              padding: EdgeInsets.all(12*s),
                               decoration: BoxDecoration(
                                 color: palette.primary.withAlpha(30),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(12*s),
                               ),
                               child: Icon(
                                 _iconForType(doc.type),
                                 color: palette.primary,
-                                size: 22,
+                                size: 25*s,
                               ),
                             ),
-                            const SizedBox(width: 10),
+                            SizedBox(width: 10*s),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -427,28 +429,24 @@ class HomeScreen extends GetView<HomeController> {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
-                                      fontSize: 13,
+                                      fontSize: 13*s,
                                       fontWeight: FontWeight.w600,
                                       color: palette.black,
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
+                                  SizedBox(height: 4*s),
                                   Text(
                                     doc.categories.join(' • '),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
-                                      fontSize: 11,
+                                      fontSize: 11*s,
                                       color: palette.black.withAlpha(100),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            if (doc.isFav) ...[
-                              const SizedBox(width: 6),
-                              const Icon(Icons.star, size: 18, color: Colors.amber),
-                            ],
                           ],
                         ),
                       );
@@ -496,11 +494,13 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+      padding: EdgeInsets.symmetric(horizontal: 12*s, vertical: 14*s),
       decoration: BoxDecoration(
         color: accent,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(14*s),
         boxShadow: [
           BoxShadow(
             color: black.withAlpha(10),
@@ -512,14 +512,14 @@ class _StatCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: EdgeInsets.all(10*s),
             decoration: BoxDecoration(
               color: primary.withAlpha(30),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12*s),
             ),
-            child: Icon(icon, size: 22, color: primary),
+            child: Icon(icon, size: 22*s, color: primary),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10*s),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -529,15 +529,15 @@ class _StatCard extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 11*s,
                     color: black.withAlpha(200),
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4*s),
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 18*s,
                     fontWeight: FontWeight.w700,
                     color: primary,
                   ),
@@ -573,14 +573,16 @@ class _QuickActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
+
     return InkWell(
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(18*s),
       onTap: onTap,
       child: Ink(
         decoration: BoxDecoration(
           color: accent,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(18*s),
           boxShadow: [
             BoxShadow(
               color: black.withAlpha(10),
@@ -590,28 +592,28 @@ class _QuickActionButton extends StatelessWidget {
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: 6*s, vertical: 10*s),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(12*s),
                 decoration: BoxDecoration(
                   color: primary.withAlpha(30),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(16*s),
                 ),
                 child: Icon(
                   icon,
-                  size: 22,
+                  size: 22*s,
                   color: primary,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 10*s),
               Text(
                 label,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 11*s,
                   fontWeight: FontWeight.w500,
                   color: black,
                 ),

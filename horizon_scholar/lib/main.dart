@@ -70,7 +70,22 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: themeController.themeData,
 
-          // 🔥 IMPORTANT
+          builder: (context, child) {
+            // 🔥 Get REAL device metrics (not OEM-scaled)
+            final view = WidgetsBinding
+                .instance.platformDispatcher.views.first;
+
+            final baseMediaQuery = MediaQueryData.fromView(view);
+
+            return MediaQuery(
+              data: baseMediaQuery.copyWith(
+                textScaler: const TextScaler.linear(1.0), // 🔒 lock font
+                boldText: false, // 🔒 disable system bold text
+              ),
+              child: child!,
+            );
+          },
+
           initialRoute: AppRoutes.splash,
           getPages: AppPages.routes,
         );

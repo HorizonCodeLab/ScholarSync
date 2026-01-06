@@ -49,7 +49,8 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
   @override
   Widget build(BuildContext context) {
     final palette = themeController.palette;
-
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
     return Scaffold(
       backgroundColor: palette.bg,
       appBar: AppBar(
@@ -58,7 +59,7 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
         title: Text(
           "Internal Exam Calculation",
           style: TextStyle(
-            fontSize: 22,
+            fontSize: 20*s,
             color: palette.minimal,
             fontFamily: 'Righteous',
           ),
@@ -78,12 +79,12 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                 // 3. Semester Chips (No Obx needed for the list generation itself)
                 _buildSemesterChips(palette),
 
-                const SizedBox(height: 6),
+                SizedBox(height: 6*s),
 
                 // 4. Internal Chips (Wrapped in Obx locally)
                 _buildInternalChips(palette),
 
-                const SizedBox(height: 12),
+                SizedBox(height: 12*s),
 
                 // 5. Subject List (Heavy lifting isolated here)
                 Expanded(
@@ -101,14 +102,16 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
   // ---------------- WIDGET EXTRACTION FOR PERFORMANCE ----------------
 
   Widget _buildSemesterSummaryCard(dynamic palette) {
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
+      padding: EdgeInsets.fromLTRB(20*s, 12*s, 20*s, 8*s),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        padding: EdgeInsets.symmetric(vertical: 20*s, horizontal: 20*s),
         decoration: BoxDecoration(
           color: palette.primary,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16*s),
         ),
         // OPTIMIZATION: Only this widget rebuilds when calculation changes
         child: Obx(() {
@@ -128,15 +131,15 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                     avgGpa == 0 ? "--" : avgGpa.toStringAsFixed(2),
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
-                      fontSize: 28,
+                      fontSize: 28*s,
                       color: palette.accent,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4*s),
                   Text(
                     "Average GPA (Sem $selectedSemester)",
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 12*s,
                       color: palette.accent,
                     ),
                   ),
@@ -152,7 +155,7 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                         avgObtained == 0 ? "--" : avgObtained.toStringAsFixed(0),
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
-                          fontSize: 22,
+                          fontSize: 22*s,
                           color: palette.accent,
                         ),
                       ),
@@ -160,17 +163,17 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                         avgMax == 0 ? "" : " / ${avgMax.toStringAsFixed(0)}",
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          fontSize: 14,
+                          fontSize: 14*s,
                           color: palette.accent,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4*s),
                   Text(
                     "Avg Total Marks",
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 12*s,
                       color: palette.accent,
                     ),
                   ),
@@ -184,14 +187,16 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
   }
 
   Widget _buildTopSummaryCard(dynamic palette) {
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+      padding: EdgeInsets.fromLTRB(20*s, 8*s, 20*s, 8*s),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+        padding: EdgeInsets.symmetric(vertical: 18*s, horizontal: 20*s),
         decoration: BoxDecoration(
           color: palette.secondary,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16*s),
         ),
         // OPTIMIZATION: Scoped Obx
         child: Obx(() {
@@ -218,15 +223,15 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                     gpa == null ? "--" : gpa.toStringAsFixed(2),
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
-                      fontSize: 32,
+                      fontSize: 32*s,
                       color: palette.primary,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4*s),
                   Text(
                     "GPA of Sem $selectedSemester - IAT $selectedInternalNo",
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 12*s,
                       color: palette.black,
                     ),
                   ),
@@ -241,7 +246,7 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                         obtained.toStringAsFixed(0),
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
-                          fontSize: 24,
+                          fontSize: 24*s,
                           color: palette.primary,
                         ),
                       ),
@@ -249,17 +254,17 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                         " / ${max.toStringAsFixed(0)}",
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
-                          fontSize: 15,
+                          fontSize: 15*s,
                           color: palette.primary,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4*s),
                   Text(
                     "Total Marks",
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 12*s,
                       color: palette.black,
                     ),
                   ),
@@ -274,8 +279,10 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
 
   Widget _buildSemesterChips(dynamic palette) {
     // No Obx here because list length 8 is constant
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: 20*s),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -283,9 +290,9 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
             final sem = i + 1;
             final isSemSelected = sem == selectedSemester;
             return Padding(
-              padding: const EdgeInsets.only(right: 8),
+              padding: EdgeInsets.only(right: 8*s),
               child: ChoiceChip(
-                label: Text("Sem $sem"),
+                label: Text("Sem $sem", style: TextStyle(fontSize: 12*s),),
                 selected: isSemSelected,
                 showCheckmark: false,
                 selectedColor: palette.primary,
@@ -309,8 +316,10 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
   }
 
   Widget _buildInternalChips(dynamic palette) {
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: 20*s),
       child: Row(
         children: [
           Expanded(
@@ -326,7 +335,7 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                   children: internals.map((i) {
                     final isSelected = i.internalNo == selectedInternalNo;
                     return Padding(
-                      padding: const EdgeInsets.only(right: 8),
+                      padding: EdgeInsets.only(right: 8*s),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -335,6 +344,7 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                               i.name,
                               style: TextStyle(
                                 color: isSelected ? palette.primary : palette.black,
+                                fontSize: 12*s
                               ),
                             ),
                             selected: isSelected,
@@ -350,7 +360,7 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
 
                           // ❌ DELETE ICON OUTSIDE CHIP
                           if (i.internalNo > 2) ...[
-                            const SizedBox(width: 4),
+                            SizedBox(width: 4*s),
                             
                               GestureDetector(
                                 onTap: () => _confirmDeleteInternal(
@@ -359,14 +369,14 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                                   i.internalNo,
                                 ),
                                 child: Container(
-                                  padding: EdgeInsets.all(5),
+                                  padding: EdgeInsets.all(5*s),
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: palette.error.withAlpha(30),
                                   ),
                                   child: Icon(
                                     Icons.close,
-                                    size: 18,
+                                    size: 18*s,
                                     color: palette.error,
                                   ),
                                 )
@@ -412,36 +422,37 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
     int internalNo,
   ) {
     final palette = themeController.palette;
-
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: palette.bg,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16*s),
         ),
         title: Row(
           children: [
             Icon(Icons.warning_amber_rounded, color: palette.error),
-            const SizedBox(width: 8),
-            const Text(
+            SizedBox(width: 8*s),
+            Text(
               "Delete Internal?",
-              style: TextStyle(fontWeight: FontWeight.w700),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18*s),
             ),
           ],
         ),
-        content: const Text(
+        content: Text(
           "This will delete:\n\n"
           "• Internal exam\n"
           "• All its marks\n"
           "• Its GPA\n\n"
           "This action cannot be undone.",
-          style: TextStyle(fontSize: 13),
+          style: TextStyle(fontSize: 13*s),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
+            child: Text("Cancel", style: TextStyle(fontSize: 12*s),),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -460,7 +471,7 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                 selectedInternalNo = 1;
               });
             },
-            child: const Text("Delete"),
+            child: Text("Delete", style: TextStyle(fontSize: 12*s)),
           ),
         ],
       ),
@@ -474,7 +485,8 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
   void _showSubjectPickerBottomSheet(BuildContext context, int semester) {
     final searchText = ''.obs;
     final palette = themeController.palette;
-    
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
     // Timer for debouncing
     Timer? _debounce;
 
@@ -482,27 +494,29 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: palette.bg,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18*s)),
       ),
       builder: (ctx) {
+        final w = MediaQuery.of(context).size.width;
+        final s=w/460;
         return DraggableScrollableSheet(
           expand: false,
-          initialChildSize: 0.75,
-          minChildSize: 0.5,
-          maxChildSize: 0.9,
+          initialChildSize: 0.75*s,
+          minChildSize: 0.5*s,
+          maxChildSize: 0.9*s,
           builder: (_, scrollController) {
             return Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+              padding: EdgeInsets.fromLTRB(20*s, 16*s, 20*s, 20*s),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      const Text(
+                      Text(
                         "Choose Subject",
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 16*s,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -513,7 +527,7 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8*s),
 
                   // Search box
                   TextField(
@@ -525,17 +539,17 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                       });
                     },
                     decoration: InputDecoration(
-                      hintText: "Search by code or name",
+                      hint: Text("Search by code or name", style: TextStyle(fontSize: 14*s)),
                       prefixIcon: const Icon(Icons.search),
                       filled: true,
                       fillColor: palette.accent,
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12*s),
                         borderSide: BorderSide.none,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12*s),
 
                   // List of subjects
                   Expanded(
@@ -544,7 +558,7 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                       final query = searchText.value.toLowerCase();
 
                       // OPTIMIZATION: If list is empty/loading, return early
-                      if (templates.isEmpty) return const SizedBox();
+                      if (templates.isEmpty) return SizedBox();
 
                       final filtered = templates.where((s) {
                         final code = s.code.toLowerCase();
@@ -558,11 +572,11 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                       filtered.sort((a, b) => a.code.compareTo(b.code));
 
                       if (filtered.isEmpty) {
-                        return const Center(
+                        return Center(
                           child: Text(
                             "No subjects found.\nTap 'Add new subject manually' instead.",
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 13),
+                            style: TextStyle(fontSize: 13*s),
                           ),
                         );
                       }
@@ -583,7 +597,7 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                           return Card(
                             color: palette.accent,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12*s),
                             ),
                             child: ListTile(
                               enabled: !alreadyAdded,
@@ -594,13 +608,14 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                                   color: alreadyAdded
                                       ? palette.black.withAlpha(120)
                                       : palette.black,
+                                  fontSize: 14*s
                                 ),
                               ),
                               subtitle: Text(
                                 alreadyAdded
                                     ? "Already added to this semester"
                                     : "${subject.credits.toStringAsFixed(1)} credits",
-                                style: const TextStyle(fontSize: 12),
+                                style: TextStyle(fontSize: 12*s),
                               ),
                               trailing: alreadyAdded
                                   ? const Icon(Icons.check_circle, color: Colors.green)
@@ -619,7 +634,7 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                       );
                     }),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8*s),
                   Align(
                     alignment: Alignment.center,
                     child: TextButton.icon(
@@ -627,10 +642,10 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                         Navigator.of(ctx).pop();
                         _showAddSubjectDialog(context, semester);
                       },
-                      icon: Icon(Icons.add, size: 18, color: palette.primary),
+                      icon: Icon(Icons.add, size: 18*s, color: palette.primary),
                       label: Text(
                         "Can't find your subject? Add manually",
-                        style: TextStyle(color: palette.primary),
+                        style: TextStyle(color: palette.primary, fontSize: 12*s),
                       ),
                     ),
                   ),
@@ -662,7 +677,9 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
 
     final selectedReg = RxnString();
     final selectedDept = RxnString();
-
+    
+    final w = MediaQuery.of(context).size.width;
+    final siz=w/460;
     // Selected subject codes
     final selectedCodes = <String>{}.obs;
 
@@ -697,17 +714,17 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
       String title,
       List<SubjectModel> list,
     ) {
-      if (list.isEmpty) return const SizedBox();
+      if (list.isEmpty) return SizedBox();
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(6, 12, 6, 6),
+            padding: EdgeInsets.fromLTRB(6*siz, 12*siz, 6*siz, 6*siz),
             child: Text(
               title,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 14*siz,
                 fontWeight: FontWeight.bold,
                 color: palette.primary,
               ),
@@ -722,7 +739,7 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
             return Card(
               color: palette.accent,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12*siz),
               ),
               child: Obx(() {
                 return CheckboxListTile(
@@ -743,13 +760,14 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                       color: alreadyAdded
                           ? palette.black.withAlpha(120)
                           : palette.black,
+                      fontSize: 14*siz
                     ),
                   ),
                   subtitle: Text(
                     alreadyAdded
                         ? "Already added"
                         : "${s.credits.toStringAsFixed(1)} credits",
-                    style: const TextStyle(fontSize: 12),
+                    style: TextStyle(fontSize: 12*siz),
                   ),
                 );
               }),
@@ -763,28 +781,30 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: palette.bg,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
       ),
       builder: (ctx) {
+        final w = MediaQuery.of(context).size.width;
+        final s=w/460;
         return DraggableScrollableSheet(
           expand: false,
-          initialChildSize: 0.9,
-          minChildSize: 0.6,
-          maxChildSize: 0.95,
+          initialChildSize: 0.9*s,
+          minChildSize: 0.6*s,
+          maxChildSize: 0.95*s,
           builder: (_, scrollController) {
             return Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+              padding: EdgeInsets.fromLTRB(20*s, 16*s, 20*s, 20*s),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // HEADER
                   Row(
                     children: [
-                      const Text(
+                      Text(
                         "Choose by Department",
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 16*s,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -795,14 +815,15 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12*s),
 
                   // REGULATION
                   Obx(() {
                     return DropdownButtonFormField<String>(
                       value: selectedReg.value,
+                      style: TextStyle(fontSize: 14*s, color: palette.black),
                       decoration: InputDecoration(
-                        labelText: "Regulation",
+                        label: Text("Regulation", style: TextStyle(fontSize: 14*s)),
                         filled: true,
                         fillColor: palette.accent,
                         border: OutlineInputBorder(
@@ -823,14 +844,15 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                       },
                     );
                   }),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10*s),
 
                   // DEPARTMENT
                   Obx(() {
                     return DropdownButtonFormField<String>(
                       value: selectedDept.value,
+                      style: TextStyle(fontSize: 14*s, color: palette.black),
                       decoration: InputDecoration(
-                        labelText: "Department",
+                        label: Text("Department", style: TextStyle(fontSize: 12*s)),
                         filled: true,
                         fillColor: palette.accent,
                         border: OutlineInputBorder(
@@ -851,7 +873,7 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                       },
                     );
                   }),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12*s),
 
                   // SUBJECT LIST
                   Expanded(
@@ -863,7 +885,7 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                             "Select regulation and department\nfor Semester $semester",
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 13*s,
                               color: palette.black,
                             ),
                           ),
@@ -875,7 +897,7 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                           child: Text(
                             "No subjects mapped for this combination.",
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 13*s,
                               color: palette.black,
                             ),
                           ),
@@ -896,7 +918,7 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                     }),
                   ),
 
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8*s),
 
                   // ADD BUTTON
                   Obx(() {
@@ -911,7 +933,7 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          padding: EdgeInsets.symmetric(vertical: 14),
                         ),
                         onPressed: enabled
                             ? () async {
@@ -946,7 +968,7 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                           enabled
                               ? "Add selected subjects"
                               : "Select subjects to add",
-                          style: TextStyle(color: palette.accent),
+                          style: TextStyle(color: palette.accent, fontSize: 14*s),
                         ),
                       ),
                     );
@@ -964,31 +986,32 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
   // and "Add Internal" remain largely the same, just keeping them concise.
   void _showAddSubjectOptions(BuildContext context, int semester) {
     final palette = themeController.palette;
-
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
     showModalBottomSheet(
       context: context,
       backgroundColor: palette.bg,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(18))),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(18*s))),
       builder: (ctx) {
         return Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+          padding: EdgeInsets.fromLTRB(20, 16*s, 20, 20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const Text("Add subject to semester", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                  Text("Add subject to semester", style: TextStyle(fontSize: 16*s, fontWeight: FontWeight.w700)),
                   const Spacer(),
                   IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.of(ctx).pop()),
                 ],
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
 
               ListTile(
                 leading: const Icon(Icons.account_tree_outlined),
-                title: const Text("Choose using department"),
-                subtitle: const Text("Regulation • Department • Multi-select", style: TextStyle(fontSize: 12)),
+                title: Text("Choose using department" ,style: TextStyle(fontSize: 16*s),),
+                subtitle: Text("Regulation • Department • Multi-select", style: TextStyle(fontSize: 12*s)),
                 onTap: () {
                   Navigator.of(ctx).pop();
                   _showDeptBasedSubjectPicker(context, semester);
@@ -997,7 +1020,7 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
               
               ListTile(
                 leading: const Icon(Icons.list_alt_outlined),
-                title: const Text("Choose from subject list"),
+                title: Text("Choose from subject list",style: TextStyle(fontSize: 16*s)),
                 onTap: () {
                   Navigator.of(ctx).pop();
                   _showSubjectPickerBottomSheet(context, semester);
@@ -1006,7 +1029,7 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
               
               ListTile(
                 leading: const Icon(Icons.add),
-                title: const Text("Add new subject manually"),
+                title: Text("Add new subject manually",style: TextStyle(fontSize: 16*s)),
                 onTap: () {
                   Navigator.of(ctx).pop();
                   _showAddSubjectDialog(context, semester);
@@ -1025,15 +1048,16 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
     final creditsCtrl = TextEditingController();
     final palette = themeController.palette;
     final isDuplicate = false.obs;
-
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
     showDialog(
       context: context,
       builder: (ctx) {
         return Dialog(
           backgroundColor: palette.bg,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18*s)),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
+            padding: EdgeInsets.fromLTRB(20, 18*s, 20, 10),
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -1042,11 +1066,11 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text("Add Subject", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                      Text("Add Subject", style: TextStyle(fontSize: 18*s, fontWeight: FontWeight.w700)),
                       IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.of(ctx).pop()),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
                   TextField(
                     controller: codeCtrl,
                     onChanged: (val) {
@@ -1055,8 +1079,9 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                         semester: semester,
                       );
                     },
+                    style: TextStyle(fontSize: 14*s),
                     decoration: InputDecoration(
-                      labelText: "Subject Code",
+                      label: Text("Subject Code", style: TextStyle(fontSize: 12*s)),
                       errorText: isDuplicate.value ? "Subject already exists" : null,
                       prefixIcon: const Icon(Icons.qr_code_2),
                       filled: true,
@@ -1068,19 +1093,19 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
                   _buildDialogTextField(nameCtrl, "Subject Name", Icons.menu_book_outlined, palette),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
                   _buildDialogTextField(creditsCtrl, "Credits", Icons.numbers, palette, isNumber: true),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16*s),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       TextButton(
                         onPressed: () => Navigator.of(ctx).pop(),
-                        child: Text("Cancel", style: TextStyle(color: palette.primary)),
+                        child: Text("Cancel", style: TextStyle(color: palette.primary, fontSize: 12*s)),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8*s),
                       Obx(() {
                         return ElevatedButton(
                           style: ElevatedButton.styleFrom(
@@ -1110,7 +1135,7 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
 
                                   if (context.mounted) Navigator.of(ctx).pop();
                                 },
-                          child: Text("Save", style: TextStyle(color: palette.accent)),
+                          child: Text("Save", style: TextStyle(color: palette.accent, fontSize: 12*s)),
                         );
                       })
 
@@ -1126,11 +1151,14 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
   }
 
   Widget _buildDialogTextField(TextEditingController ctrl, String label, IconData icon, dynamic palette, {bool isNumber = false}) {
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
     return TextField(
       controller: ctrl,
       keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+      style: TextStyle(fontSize: 14*s),
       decoration: InputDecoration(
-        labelText: label,
+        label: Text(label, style: TextStyle(fontSize: 12*s),),
         floatingLabelBehavior: FloatingLabelBehavior.never,
         prefixIcon: Icon(icon),
         filled: true,
@@ -1142,19 +1170,21 @@ class _CalculateInternalScreenState extends State<CalculateInternalScreen> {
 
   void _showAddInternalDialog(BuildContext context) {
     final ctrl = TextEditingController();
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text("Add Internal"),
-        content: TextField(controller: ctrl, decoration: const InputDecoration(hintText: "Internal 1")),
+        title: Text("Add Internal", style: TextStyle(fontSize: 16*s, fontWeight: FontWeight.w500),),
+        content: TextField(controller: ctrl, style: TextStyle(fontSize: 14*s), decoration: InputDecoration(hint: Text("Internal 1", style: TextStyle(fontSize: 14*s),))),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text("Cancel", style: TextStyle(fontSize: 12*s),)),
           ElevatedButton(
             onPressed: () async {
               await internalCtrl.addInternal(selectedSemester, ctrl.text.trim().isEmpty ? "Internal" : ctrl.text.trim());
               if(context.mounted) Navigator.pop(context);
             },
-            child: const Text("Add"),
+            child: Text("Add", style: TextStyle(fontSize: 12*s)),
           ),
         ],
       ),
@@ -1181,7 +1211,8 @@ class _SubjectListSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final CgpaCalcController cgpaCtrl = Get.find<CgpaCalcController>();
-
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
     return Obx(() {
       // OPTIMIZATION: filtering happens here, inside a scoped Obx
       final subjects = cgpaCtrl.subjects
@@ -1196,13 +1227,13 @@ class _SubjectListSection extends StatelessWidget {
         return Center(
           child: Text(
             "No subjects added for this semester",
-            style: TextStyle(fontSize: 13, color: palette.black),
+            style: TextStyle(fontSize: 13*s, color: palette.black),
           ),
         );
       }
 
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: EdgeInsets.symmetric(horizontal: 20),
         child: ListView.builder(
           // OPTIMIZATION: Use itemExtent or prototypeItem if tiles are fixed height 
           // to drastically improve scroll performance for large lists.
@@ -1304,35 +1335,36 @@ class _InternalSubjectTileState extends State<_InternalSubjectTile> {
 
   void _confirmDelete(BuildContext context) {
     final palette = themeController.palette;
-
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: palette.bg,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16*s)),
         title: Row(
           children: [
             Icon(Icons.warning_amber_rounded, color: palette.error),
-            const SizedBox(width: 8),
-            const Text("Delete Subject?", style: TextStyle(fontWeight: FontWeight.w700)),
+            SizedBox(width: 8*s),
+            Text("Delete Subject?", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18*s)),
           ],
         ),
-        content: const Text(
+        content: Text(
           "This subject will be removed from:\n\n"
           "• CGPA calculation\n"
           "• Internal marks\n\n"
           "This action cannot be undone.",
-          style: TextStyle(fontSize: 13),
+          style: TextStyle(fontSize: 13*s),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text("Cancel", style: TextStyle(fontSize: 12*s))),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: palette.error),
             onPressed: () async {
               Navigator.pop(context);
               await cgpaCtrl.removeSubjectAndCleanup(widget.subject);
             },
-            child: const Text("Delete"),
+            child: Text("Delete", style: TextStyle(fontSize: 12*s)),
           ),
         ],
       ),
@@ -1344,10 +1376,11 @@ class _InternalSubjectTileState extends State<_InternalSubjectTile> {
   @override
   Widget build(BuildContext context) {
     final palette = themeController.palette;
-
+    final w = MediaQuery.of(context).size.width;
+    final s=w/460;
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      margin: EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: palette.accent,
         borderRadius: BorderRadius.circular(14),
@@ -1370,12 +1403,12 @@ class _InternalSubjectTileState extends State<_InternalSubjectTile> {
                   widget.subject.code.isNotEmpty
                       ? "${widget.subject.code} - ${widget.subject.name}"
                       : widget.subject.name,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  style: TextStyle(fontSize: 14*s, fontWeight: FontWeight.w600),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   "${widget.subject.credits.toStringAsFixed(1)} credits",
-                  style: TextStyle(fontSize: 11, color: palette.black.withAlpha(150)),
+                  style: TextStyle(fontSize: 11*s, color: palette.black.withAlpha(150)),
                 ),
               ],
             ),
@@ -1383,11 +1416,12 @@ class _InternalSubjectTileState extends State<_InternalSubjectTile> {
 
           // ---- MARK INPUT ----
           SizedBox(
-            width: 80,
+            width: 80*s,
             child: TextField(
               controller: markCtrl,
               keyboardType: TextInputType.number,
               textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14*s),
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
                 LengthLimitingTextInputFormatter(3),
@@ -1401,9 +1435,9 @@ class _InternalSubjectTileState extends State<_InternalSubjectTile> {
                 hintText: "Marks",
                 filled: true,
                 fillColor: palette.bg.withAlpha(150),
-                contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                contentPadding: EdgeInsets.symmetric(vertical: 8*s),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10*s),
                   borderSide: BorderSide.none,
                 ),
               ),
@@ -1411,7 +1445,7 @@ class _InternalSubjectTileState extends State<_InternalSubjectTile> {
             ),
           ),
 
-          const SizedBox(width: 6),
+          SizedBox(width: 6*s),
 
           // ---- DELETE ----
           IconButton(

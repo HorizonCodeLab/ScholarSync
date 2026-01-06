@@ -21,371 +21,66 @@ class CourseScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final palette = themeController.palette;
+    final screenSize = MediaQuery.of(context).size;
+    final screenWidth = screenSize.width;
+    
+    // Improved responsive scaling
+    final isMobile = screenWidth < 600;
+    final isTablet = screenWidth >= 600 && screenWidth < 1200;
+
+    // Dynamic scaling factor with better breakpoints
+    late double s;
+    if (isMobile) {
+      s = screenWidth / 460; // Original mobile scaling
+    } else if (isTablet) {
+      s = screenWidth / 600; // Tablet scaling
+    } else {
+      s = screenWidth / 800; // Desktop scaling
+    }
 
     return Scaffold(
       backgroundColor: palette.bg,
 
       // ---------- FAB ADD BUTTON ----------
       floatingActionButton: SizedBox(
-        height: 56,
-        width: 56,
+        height: 56 * s,
+        width: 56 * s,
         child: FloatingActionButton(
           heroTag: 'course_screen_fab',
           onPressed: () => _showAddCourseDialog(context),
           backgroundColor: palette.primary,
-          child: Icon(Icons.add, color: palette.accent),
+          child: Icon(
+            Icons.add,
+            color: palette.accent,
+            size: 28 * s,
+          ),
         ),
       ),
 
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 2),
+          padding: EdgeInsets.fromLTRB(20 * s, 12 * s, 20 * s, 2 * s),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ---- Title ----
-              Text(
-                "Course Manager",
-                style: TextStyle(
-                  fontSize: 22,
-                  color: palette.minimal,
-                  fontFamily: 'Righteous',
+              // ---- Header with Title ----
+              _buildHeader(palette, s, isMobile),
 
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                "Track your learning & certificates",
-                style: TextStyle(
-                  fontSize: 12,
-                  color: palette.black.withAlpha(150),
-                ),
-              ),
-
-              const SizedBox(height: 18),
+              SizedBox(height: 18 * s),
 
               // ---- Stats card (Completed / Pending) ----
-              Obx(() {
-                final completed = courseController.completedCount;
-                final pending = courseController.pendingCount;
+              _buildStatsCard(palette, s, isMobile),
 
-                return Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 18, horizontal: 14),
-                  decoration: BoxDecoration(
-                    color: palette.primary,
-                    borderRadius: BorderRadius.circular(18),
-                    boxShadow: [
-                      BoxShadow(
-                        blurRadius: 6,
-                        offset: const Offset(0, 3),
-                        color: palette.black.withAlpha(10),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              "$completed",
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w700,
-                                color: palette.accent
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              "Completed",
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: palette.accent
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        width: 1.5,
-                        height: 50,
-                        color: palette.accent,
-                      ),
-                      Expanded(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              "$pending",
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w700,
-                                color: palette.accent
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              "Pending",
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: palette.accent
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-
-              const SizedBox(height: 22),
+              SizedBox(height: 22 * s),
 
               // ---- Filter row: status + categories + +Category ----
-              Obx(() {
-                final current = courseController.selectedFilter.value;
-                final categories = courseController.categoryList;
+              _buildFilterRow(context, palette, s, isMobile),
 
-                Widget buildFilterChip(String label) {
-                  final isSelected = current == label;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: ChoiceChip(
-                      label: Text(
-                        label,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      selected: isSelected,
-                      showCheckmark: false,
-                      backgroundColor: palette.black.withAlpha(20),
-                      selectedColor: palette.primary,
-                      labelStyle: TextStyle(
-                        color: isSelected ? palette.accent : palette.black,
-                      ),
-                      onSelected: (_) =>
-                          courseController.selectedFilter.value = label,
-                    ),
-                  );
-                }
-
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      buildFilterChip('All'),
-                      buildFilterChip('Completed'),
-                      buildFilterChip('Pending'),
-                      ...categories.map(buildFilterChip).toList(),
-                      GestureDetector(
-                        onTap: () => _showAddCategoryDialog(context),
-                        child: Container(
-                          margin: const EdgeInsets.only(left: 4),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: palette.secondary,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.add,
-                                  size: 16, color: palette.black),
-                              SizedBox(width: 4),
-                              Text(
-                                "Category",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: palette.black,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-
-              const SizedBox(height: 18),
+              SizedBox(height: 18 * s),
 
               // ---- Course list ----
-              Expanded(
-                child: Obx(() {
-                  final courses = courseController.filteredCourses;
-
-                  if (courses.isEmpty) {
-                    return Center(
-                      child: Text(
-                        "No courses yet.\nTap + to add one.",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: palette.black.withAlpha(150),
-                        ),
-                      ),
-                    );
-                  }
-
-                  return ListView.builder(
-                    padding: const EdgeInsets.only(bottom: 80),
-                    itemCount: courses.length,
-                    itemBuilder: (context, index) {
-                      final course = courses[index];
-                      final originalIndex =
-                          courseController.courseList.indexOf(course);
-
-                      return GestureDetector(
-                        onTap: () => _showEditCourseDialog(
-                            context, course, originalIndex),
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.all(12),
-                        
-                          decoration: BoxDecoration(
-                            color: palette.accent,
-                            borderRadius: BorderRadius.circular(16),
-                            
-                            boxShadow: [
-                              BoxShadow(
-                                blurRadius: 6,
-                                spreadRadius: 1,
-                                offset: const Offset(0, 3),
-                                color: palette.black.withAlpha(10),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Thumbnail (certificate preview)
-                              Container(
-                                width: 56,
-                                height: 56,
-                                decoration: BoxDecoration(
-                                  color: palette.bg,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: _buildCertificatePreview(
-                                  course.certificationPath,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-
-                              // Text content
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    
-                                    Text(
-                                      course.courseName,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      course.courseDescription,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: palette.black.withAlpha(150),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    
-                                  ],
-                                  
-                                ),
-                                
-                              ),
-                              Column(
-                                children: [
-
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          course.isCompleted
-                                              ? Icons.check_circle_outline
-                                              : Icons.pending_outlined,
-                                          size: 16,
-                                          color: course.isCompleted
-                                              ? palette.success
-                                              : palette.warning,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          course.isCompleted
-                                              ? "Completed"
-                                              : "Pending",
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                            color: course.isCompleted
-                                                ? palette.success
-                                                : palette.warning,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    
-                                  ),
-                                  
-                                  Row(
-                                      children: [
-                                        if (course.certificationPath.isNotEmpty)
-                                          IconButton(
-                                            
-                                            padding: EdgeInsets.zero,
-                                            constraints: const BoxConstraints(),
-                                            icon: const Icon(Icons.download, size: 20),
-                                            tooltip: "Download certificate",
-                                            onPressed: () => _downloadCertificate(
-                                              context,
-                                              course.certificationPath,
-                                            ),
-                                          ),
-                                          Icon(Icons.chevron_right, size: 20), 
-                                          
-                                      ],
-                                    ),
-                                ],
-                              )
-                              
-
-
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                }),
-              ),
+              _buildCourseList(context, palette, s, isMobile),
             ],
           ),
         ),
@@ -393,8 +88,370 @@ class CourseScreen extends StatelessWidget {
     );
   }
 
+  // ============== HEADER SECTION ==============
+  Widget _buildHeader(dynamic palette, double s, bool isMobile) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Course Manager",
+          style: TextStyle(
+            fontSize: isMobile ? 22 * s : 26 * s,
+            color: palette.minimal,
+            fontFamily: 'Righteous',
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        SizedBox(height: 4 * s),
+        Text(
+          "Track your learning & certificates",
+          style: TextStyle(
+            fontSize: isMobile ? 12 * s : 14 * s,
+            color: palette.black.withAlpha(150),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ============== STATS CARD ==============
+  Widget _buildStatsCard(dynamic palette, double s, bool isMobile) {
+    return Obx(() {
+      final completed = courseController.completedCount;
+      final pending = courseController.pendingCount;
+
+      return Container(
+        padding: EdgeInsets.symmetric(vertical: 25 * s, horizontal: 14 * s),
+        decoration: BoxDecoration(
+          color: palette.primary,
+          borderRadius: BorderRadius.circular(18 * s),
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+              color: palette.black.withAlpha(10),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "$completed",
+                    style: TextStyle(
+                      fontSize: isMobile ? 24 * s : 28 * s,
+                      fontWeight: FontWeight.w700,
+                      color: palette.accent,
+                    ),
+                  ),
+                  SizedBox(height: 4 * s),
+                  Text(
+                    "Completed",
+                    style: TextStyle(
+                      fontSize: isMobile ? 12 * s : 13 * s,
+                      fontWeight: FontWeight.w500,
+                      color: palette.accent,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              width: 1.5 * s,
+              height: 50 * s,
+              color: palette.accent,
+            ),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "$pending",
+                    style: TextStyle(
+                      fontSize: isMobile ? 24 * s : 28 * s,
+                      fontWeight: FontWeight.w700,
+                      color: palette.accent,
+                    ),
+                  ),
+                  SizedBox(height: 4 * s),
+                  Text(
+                    "Pending",
+                    style: TextStyle(
+                      fontSize: isMobile ? 12 * s : 13 * s,
+                      fontWeight: FontWeight.w500,
+                      color: palette.accent,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  // ============== FILTER ROW ==============
+  Widget _buildFilterRow(BuildContext context, dynamic palette, double s, bool isMobile) {
+    return Obx(() {
+      final current = courseController.selectedFilter.value;
+      final categories = courseController.categoryList;
+
+      Widget buildFilterChip(String label) {
+        final isSelected = current == label;
+        return Padding(
+          padding: EdgeInsets.only(right: 8.0 * s),
+          child: ChoiceChip(
+            label: Text(
+              label,
+              style: TextStyle(
+                fontSize: isMobile ? 12 * s : 13 * s,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            selected: isSelected,
+            showCheckmark: false,
+            backgroundColor: palette.black.withAlpha(20),
+            selectedColor: palette.primary,
+            labelStyle: TextStyle(
+              color: isSelected ? palette.accent : palette.black,
+            ),
+            onSelected: (_) => courseController.selectedFilter.value = label,
+          ),
+        );
+      }
+
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            buildFilterChip('All'),
+            buildFilterChip('Completed'),
+            buildFilterChip('Pending'),
+            ...categories.map(buildFilterChip).toList(),
+            GestureDetector(
+              onTap: () => _showAddCategoryDialog(context),
+              child: Container(
+                margin: EdgeInsets.only(left: 4 * s),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 12 * s,
+                  vertical: 9 * s,
+                ),
+                decoration: BoxDecoration(
+                  color: palette.secondary,
+                  borderRadius: BorderRadius.circular(12 * s),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.add, size: 16 * s, color: palette.black),
+                    SizedBox(width: 4 * s),
+                    Text(
+                      "Category",
+                      style: TextStyle(
+                        fontSize: 12 * s,
+                        color: palette.black,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  // ============== COURSE LIST ==============
+  Widget _buildCourseList(BuildContext context, dynamic palette, double s, bool isMobile) {
+    return Expanded(
+      child: Obx(() {
+        final courses = courseController.filteredCourses;
+
+        if (courses.isEmpty) {
+          return Center(
+            child: Text(
+              "No courses yet.\nTap + to add one.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13 * s,
+                color: palette.black.withAlpha(150),
+              ),
+            ),
+          );
+        }
+
+        return ListView.builder(
+          padding: EdgeInsets.only(bottom: 80 * s),
+          itemCount: courses.length,
+          itemBuilder: (context, index) {
+            final course = courses[index];
+            final originalIndex = courseController.courseList.indexOf(course);
+
+            return GestureDetector(
+              onTap: () => _showEditCourseDialog(context, course, originalIndex),
+              child: _buildCourseCard(context, palette, s, course, isMobile),
+            );
+          },
+        );
+      }),
+    );
+  }
+
+  // ============== COURSE CARD ==============
+  Widget _buildCourseCard(BuildContext context, dynamic palette, double s,
+    CourseModel course, bool isMobile) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 16 * s),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14*s),
+        boxShadow: [
+          BoxShadow(
+            color: palette.black.withAlpha(8),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14*s),
+        child: Material(
+          color: palette.accent,
+          child: InkWell(
+            child: Padding(
+              padding: EdgeInsets.all(16 * s),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // 1. Enhanced Thumbnail with Border
+                  Container(
+                    width: (isMobile ? 65 : 80) * s,
+                    height: (isMobile ? 65 : 80) * s,
+                    decoration: BoxDecoration(
+                      color: palette.bg,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: palette.black.withAlpha(15), width: 1),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(13),
+                      child: _buildCertificatePreview(course.certificationPath, context),
+                    ),
+                  ),
+                  SizedBox(width: 16 * s),
+
+                  // 2. Text Content
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Status Pill (Small and clean)
+                        _buildStatusPill(course.isCompleted, palette, s),
+                        SizedBox(height: 8 * s),
+                        Text(
+                          course.courseName,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: (isMobile ? 15 : 17) * s,
+                            letterSpacing: -0.5,
+                            color: palette.black,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: 4 * s),
+                        Text(
+                          course.courseDescription,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12 * s,
+                            height: 1.3,
+                            color: palette.black.withAlpha(140),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // 3. Dynamic Action Area
+                  SizedBox(width: 12 * s),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (course.certificationPath.isNotEmpty)
+                        _buildRoundActionButton(
+                          icon: Icons.file_download_outlined,
+                          color: palette.black,
+                          onTap: () => _downloadCertificate(context, course.certificationPath),
+                          s: s,
+                        ),
+                      if (course.certificationPath.isNotEmpty) SizedBox(height: 12 * s),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 14 * s,
+                        color: palette.black.withAlpha(80),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Helper: A modern "Status Pill"
+  Widget _buildStatusPill(bool isCompleted, dynamic palette, double s) {
+    final color = isCompleted ? palette.success : palette.warning;
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8 * s, vertical: 4 * s),
+      decoration: BoxDecoration(
+        color: color.withAlpha(25), // Semi-transparent background
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircleAvatar(radius: 3 * s, backgroundColor: color),
+          SizedBox(width: 6 * s),
+          Text(
+            isCompleted ? "COMPLETED" : "IN PROGRESS",
+            style: TextStyle(
+              fontSize: 9 * s,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper: Minimalist Action Button
+  Widget _buildRoundActionButton({required IconData icon, required Color color, required VoidCallback onTap, required double s}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(8 * s),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: color.withAlpha(15),
+        ),
+        child: Icon(icon, size: 18 * s, color: color),
+      ),
+    );
+  }
+
   // ================== CERTIFICATE PREVIEW ==================
-  Widget _buildCertificatePreview(String path) {
+  Widget _buildCertificatePreview(String path, context) {
     final palette = themeController.palette;
 
     if (path.isEmpty) {
@@ -417,10 +474,12 @@ class CourseScreen extends StatelessWidget {
     }
 
     if (ext == 'pdf') {
+      final w = MediaQuery.of(context).size.width;
+      final s = w / 460;
       return Icon(
         Icons.picture_as_pdf,
         color: palette.error,
-        size: 32,
+        size: 32 * s,
       );
     }
 
@@ -442,7 +501,7 @@ class CourseScreen extends StatelessWidget {
         final result = await FilePicker.platform.pickFiles(
           type: FileType.custom,
           allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
-          withData: false, // important for large files
+          withData: false,
         );
 
         if (result == null || result.files.isEmpty) return;
@@ -458,299 +517,305 @@ class CourseScreen extends StatelessWidget {
       }
     }
 
-
-
     showDialog(
       context: context,
       builder: (ctx) {
+        final screenSize = MediaQuery.of(context).size;
+        final w = screenSize.width;
+        final s = w / 460;
+
+        // Responsive dialog width
+        final dialogWidth = w > 600 ? 600.0 : w * 0.9;
+
         return Dialog(
+          insetPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
           backgroundColor: palette.bg,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
           ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Add Course",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.of(ctx).pop(),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Course name
-                  TextField(
-                    controller: nameController,
-                    style: const TextStyle(fontSize: 14),
-                    decoration: InputDecoration(
-                      labelText: "Course name",
-                      labelStyle: TextStyle(
-                        fontSize: 14,
-                      ),
-                      floatingLabelBehavior: FloatingLabelBehavior.never,
-                      prefixIcon: const Icon(Icons.menu_book_outlined, size: 22,),
-                      filled: true,
-                      fillColor: palette.black.withAlpha(10),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Description
-                  Container(
-                    decoration: BoxDecoration(
-                      color: palette.black.withAlpha(10),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Icon aligned with first text line (NOT label)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Icon(
-                            Icons.description_outlined,
-                            size: 22,
-                            color: palette.black.withAlpha(160),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-
-                        Expanded(
-                          child: TextField(
-                            controller: descController,
-                            maxLines: 3,
-                            textAlignVertical: TextAlignVertical.top,
-                            style: const TextStyle(fontSize: 14),
-                            decoration: const InputDecoration(
-                              hintText: "Course description",
-                              border: InputBorder.none,
-                              isDense: true,
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 10),
-
-                  // Upload certificate
-                  Obx(
-                    () => Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: dialogWidth),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(20 * s, 18 * s, 20 * s, 10 * s),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
-                          "Certificate (optional)",
+                          "Add Course",
                           style: TextStyle(
-                            fontSize: 13,
-                            color: palette.black.withAlpha(150),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        FilledButton.icon(
-                          onPressed: _pickCertificate,
-                          style: FilledButton.styleFrom(
-                            backgroundColor: palette.primary,
-                            foregroundColor: palette.accent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 10,
-                            ),
-                          ),
-                          icon: const Icon(Icons.upload_file),
-                          label: Text(
-                            selectedFileName.isEmpty
-                                ? "Upload certificate"
-                                : selectedFileName.value,
-                            overflow: TextOverflow.ellipsis,
+                            fontSize: 18 * s,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 10),
+                    SizedBox(height: 20 * s),
 
-                  // Categories multi-select
-                  Obx(() {
-                    final categories = courseController.categoryList;
+                    // Course name
+                    TextField(
+                      controller: nameController,
+                      style: TextStyle(fontSize: 14 * s),
+                      decoration: InputDecoration(
+                        labelText: "Course name",
+                        labelStyle: TextStyle(fontSize: 14 * s),
+                        floatingLabelBehavior: FloatingLabelBehavior.never,
+                        prefixIcon: Icon(Icons.menu_book_outlined, size: 22 * s),
+                        filled: true,
+                        fillColor: palette.black.withAlpha(10),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10 * s),
 
-                    if (categories.isEmpty) {
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    // Description
+                    Container(
+                      decoration: BoxDecoration(
+                        color: palette.black.withAlpha(10),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: EdgeInsets.fromLTRB(12 * s, 14 * s, 12 * s, 14 * s),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            "Categories",
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
+                          Padding(
+                            padding: EdgeInsets.only(top: 2 * s),
+                            child: Icon(
+                              Icons.description_outlined,
+                              size: 22 * s,
+                              color: palette.black.withAlpha(160),
                             ),
                           ),
-                          TextButton.icon(
-                            onPressed: () => _showAddCategoryDialog(context),
-                            icon: Icon(Icons.add,
-                                size: 16, color: palette.primary),
-                            label: Text(
-                              "Add category",
-                              style: TextStyle(color: palette.primary),
+                          SizedBox(width: 10 * s),
+                          Expanded(
+                            child: TextField(
+                              controller: descController,
+                              maxLines: 3,
+                              textAlignVertical: TextAlignVertical.top,
+                              style: TextStyle(fontSize: 14 * s),
+                              decoration: const InputDecoration(
+                                hintText: "Course description",
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
                             ),
                           ),
                         ],
-                      );
-                    }
+                      ),
+                    ),
 
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                    SizedBox(height: 15 * s),
+
+                    // Upload certificate
+                    Obx(
+                      () => Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Certificate (optional)",
+                            style: TextStyle(
+                              fontSize: 13 * s,
+                              color: palette.black.withAlpha(150),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          SizedBox(height: 6 * s),
+                          FilledButton.icon(
+                            onPressed: _pickCertificate,
+                            style: FilledButton.styleFrom(
+                              backgroundColor: palette.primary,
+                              foregroundColor: palette.accent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12 * s,
+                                vertical: 10 * s,
+                              ),
+                            ),
+                            icon: const Icon(Icons.upload_file),
+                            label: Text(
+                              selectedFileName.isEmpty
+                                  ? "Upload certificate"
+                                  : selectedFileName.value,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 14 * s),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 10 * s),
+
+                    // Categories multi-select
+                    Obx(() {
+                      final categories = courseController.categoryList;
+
+                      if (categories.isEmpty) {
+                        return Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               "Categories",
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 13 * s,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                             TextButton.icon(
                               onPressed: () => _showAddCategoryDialog(context),
                               icon: Icon(Icons.add,
-                                  size: 16, color: palette.primary),
+                                  size: 16 * s, color: palette.primary),
                               label: Text(
-                                "New",
-                                style: TextStyle(color: palette.primary),
+                                "Add category",
+                                style: TextStyle(
+                                  fontSize: 14 * s,
+                                  color: palette.primary,
+                                ),
                               ),
                             ),
                           ],
+                        );
+                      }
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Categories",
+                                style: TextStyle(
+                                  fontSize: 13 * s,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              TextButton.icon(
+                                onPressed: () => _showAddCategoryDialog(context),
+                                icon: Icon(Icons.add,
+                                    size: 16 * s, color: palette.primary),
+                                label: Text(
+                                  "New",
+                                  style: TextStyle(color: palette.primary),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 6 * s),
+                          Wrap(
+                            spacing: 8 * s,
+                            runSpacing: 6 * s,
+                            children: categories.map((cat) {
+                              final isSelected =
+                                  selectedCategories.contains(cat);
+                              return ChoiceChip(
+                                backgroundColor: palette.black.withAlpha(20),
+                                selectedColor: palette.secondary,
+                                label: Text(cat),
+                                showCheckmark: false,
+                                selected: isSelected,
+                                onSelected: (val) {
+                                  if (val) {
+                                    selectedCategories.add(cat);
+                                  } else {
+                                    selectedCategories.remove(cat);
+                                  }
+                                },
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      );
+                    }),
+                    SizedBox(height: 6 * s),
+
+                    // Completed switch
+                    Obx(
+                      () => SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          "Completed",
+                          style: TextStyle(fontSize: 14 * s),
                         ),
-                        const SizedBox(height: 6),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 6,
-                          children: categories.map((cat) {
-                            final isSelected =
-                                selectedCategories.contains(cat);
-                            return ChoiceChip(
-                              backgroundColor: palette.black.withAlpha(20),
-                              selectedColor: palette.secondary,
-                              label: Text(cat),
-                              showCheckmark: false,
-                              selected: isSelected,
-                              onSelected: (val) {
-                                if (val) {
-                                  selectedCategories.add(cat);
-                                } else {
-                                  selectedCategories.remove(cat);
-                                }
-                              },
+                        value: isCompleted.value,
+                        activeColor: palette.accent,
+                        activeTrackColor: palette.primary,
+                        onChanged: (val) => isCompleted.value = val,
+                      ),
+                    ),
+                    SizedBox(height: 8 * s),
+
+                    // Buttons row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(),
+                          child: Text(
+                            "Cancel",
+                            style: TextStyle(
+                              fontSize: 14 * s,
+                              color: palette.primary,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 8 * s),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: palette.primary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onPressed: () {
+                            if (nameController.text.trim().isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Course name cannot be empty"),
+                                ),
+                              );
+                              return;
+                            }
+
+                            final course = CourseModel(
+                              courseName: nameController.text.trim(),
+                              isCompleted: isCompleted.value,
+                              certificationPath: certPathController.text.trim(),
+                              courseDescription: descController.text.trim(),
+                              categories: selectedCategories.toList(),
                             );
-                          }).toList(),
+
+                            courseController.addCourse(course);
+                            Navigator.of(ctx).pop();
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 10 * s,
+                              vertical: 6 * s,
+                            ),
+                            child: Text(
+                              "Save",
+                              style: TextStyle(
+                                fontSize: 14 * s,
+                                color: palette.accent,
+                              ),
+                            ),
+                          ),
                         ),
                       ],
-                    );
-                  }),
-                  const SizedBox(height: 6),
-
-                  // Completed switch
-                  Obx(
-                    () => SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(
-                        "Completed",
-                        style: TextStyle(fontSize: 14),
-                      ),
-                      value: isCompleted.value,
-                      activeColor: palette.accent,
-                      activeTrackColor: palette.primary,
-                      onChanged: (val) => isCompleted.value = val,
                     ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Buttons row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () => Navigator.of(ctx).pop(),
-                        child: Text(
-                          "Cancel",
-                          style: TextStyle(color: palette.primary),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: palette.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        onPressed: () {
-                          if (nameController.text.trim().isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Course name cannot be empty")),
-                            );
-                            return;
-                          }
-
-                          final course = CourseModel(
-                            courseName: nameController.text.trim(),
-                            isCompleted: isCompleted.value,
-                            certificationPath: certPathController.text.trim(),
-                            courseDescription: descController.text.trim(),
-                            categories: selectedCategories.toList(),
-                          );
-
-                          courseController.addCourse(course);
-                          Navigator.of(ctx).pop();
-
-                          // 👇 OPTIONAL SUPPORT AD
-                          // adController.showRewarded(() {
-                          //   courseController.addCourse(course);
-                          //   Navigator.of(ctx).pop();
-                          // });
-                        },
-
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          child: Text(
-                            "Save",
-                            style: TextStyle(color: palette.accent),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -760,7 +825,6 @@ class CourseScreen extends StatelessWidget {
   }
 
   // ================= DOWNLOAD COURSE CERTIFICATE ==================
-
   Future<void> _downloadCertificate(
     BuildContext context,
     String sourcePath,
@@ -783,20 +847,22 @@ class CourseScreen extends StatelessWidget {
 
       final fileName = p.basename(sourcePath);
 
-      // 🔥 READ FILE AS BYTES (REQUIRED)
+      // READ FILE AS BYTES
       final bytes = await sourceFile.readAsBytes();
 
-      // 🔥 SYSTEM SAVE DIALOG
+      // SYSTEM SAVE DIALOG
       final savePath = await FilePicker.platform.saveFile(
         dialogTitle: 'Download certificate',
         fileName: fileName,
-        bytes: bytes, // ✅ THIS FIXES THE ERROR
+        bytes: bytes,
       );
 
-      if (savePath == null) return; // user cancelled
+      if (savePath == null) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Certificate downloaded successfully")),
+        const SnackBar(
+          content: Text("Certificate downloaded successfully"),
+        ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -804,9 +870,6 @@ class CourseScreen extends StatelessWidget {
       );
     }
   }
-
-
-
 
   // ================== EDIT COURSE DIALOG ==================
   void _showEditCourseDialog(
@@ -823,10 +886,9 @@ class CourseScreen extends StatelessWidget {
     final selectedCategories = (course.categories).toList().obs;
 
     final selectedFileName = (course.certificationPath.isNotEmpty
-        ? p.basename(course.certificationPath)
-        : '')
-    .obs;
-
+            ? p.basename(course.certificationPath)
+            : '')
+        .obs;
 
     Future<void> _pickCertificate() async {
       try {
@@ -840,7 +902,7 @@ class CourseScreen extends StatelessWidget {
 
         final file = result.files.single;
 
-        if (file.path == null) return;  
+        if (file.path == null) return;
 
         certPathController.text = file.path!;
         selectedFileName.value = file.name;
@@ -849,400 +911,443 @@ class CourseScreen extends StatelessWidget {
       }
     }
 
-
     final palette = themeController.palette;
-
-
 
     showDialog(
       context: context,
       builder: (ctx) {
+        final screenSize = MediaQuery.of(context).size;
+        final w = screenSize.width;
+        final s = w / 460;
+
+        // Responsive dialog width
+        final dialogWidth = w > 600 ? 600.0 : w * 0.9;
+
         return Dialog(
+          insetPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
           backgroundColor: palette.bg,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
           ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Edit Course",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.of(ctx).pop(),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Course name
-                  TextField(
-                    controller: nameController,
-                    style: const TextStyle(fontSize: 14),
-                    decoration: InputDecoration(
-                      labelText: "Course name",
-                      labelStyle: TextStyle(
-                        fontSize: 14,
-                      ),
-                      floatingLabelBehavior: FloatingLabelBehavior.never,
-                      prefixIcon: const Icon(Icons.menu_book_outlined, size: 22,),
-                      filled: true,
-                      fillColor: palette.black.withAlpha(10),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Description
-                  Container(
-                    decoration: BoxDecoration(
-                      color: palette.black.withAlpha(10),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Icon aligned with first text line (NOT label)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Icon(
-                            Icons.description_outlined,
-                            size: 22,
-                            color: palette.black.withAlpha(160),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-
-                        Expanded(
-                          child: TextField(
-                            controller: descController,
-                            maxLines: 3,
-                            textAlignVertical: TextAlignVertical.top,
-                            style: const TextStyle(fontSize: 14),
-                            decoration: const InputDecoration(
-                              hintText: "Course description",
-                              border: InputBorder.none,
-                              isDense: true,
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  // Upload certificate
-                  Obx(
-                    () => Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: dialogWidth),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(20 * s, 18 * s, 20 * s, 10 * s),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
-                          "Certificate (optional)",
+                          "Edit Course",
                           style: TextStyle(
-                            fontSize: 13,
-                            color: palette.black.withAlpha(150),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        FilledButton.icon(
-                          style: FilledButton.styleFrom(
-                            backgroundColor: palette.primary,
-                            foregroundColor: palette.accent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 10,
-                            ),
-                          ),
-                          onPressed: _pickCertificate,
-                          icon: const Icon(Icons.upload_file),
-                          label: Text(
-                            selectedFileName.isEmpty
-                                ? "Upload / Change certificate"
-                                : selectedFileName.value,
-                            overflow: TextOverflow.ellipsis,
+                            fontSize: 18 * s,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 10),
+                    SizedBox(height: 15 * s),
 
-                  // Categories multi-select
-                  Obx(() {
-                    final categories = courseController.categoryList;
+                    // Course name
+                    TextField(
+                      controller: nameController,
+                      style: TextStyle(fontSize: 14 * s),
+                      decoration: InputDecoration(
+                        labelText: "Course name",
+                        labelStyle: TextStyle(fontSize: 14 * s),
+                        floatingLabelBehavior: FloatingLabelBehavior.never,
+                        prefixIcon: Icon(Icons.menu_book_outlined, size: 22 * s),
+                        filled: true,
+                        fillColor: palette.black.withAlpha(10),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10 * s),
 
-                    if (categories.isEmpty) {
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    // Description
+                    Container(
+                      decoration: BoxDecoration(
+                        color: palette.black.withAlpha(10),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: EdgeInsets.fromLTRB(12 * s, 14 * s, 12 * s, 14 * s),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            "Categories",
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
+                          Padding(
+                            padding: EdgeInsets.only(top: 2 * s),
+                            child: Icon(
+                              Icons.description_outlined,
+                              size: 22 * s,
+                              color: palette.black.withAlpha(160),
                             ),
                           ),
-                          TextButton.icon(
-                            onPressed: () => _showAddCategoryDialog(context),
-                            icon: Icon(Icons.add,
-                                size: 16, color: palette.primary),
-                            label: Text(
-                              "Add category",
-                              style: TextStyle(color: palette.primary),
+                          SizedBox(width: 10 * s),
+                          Expanded(
+                            child: TextField(
+                              controller: descController,
+                              maxLines: 3,
+                              textAlignVertical: TextAlignVertical.top,
+                              style: TextStyle(fontSize: 14 * s),
+                              decoration: const InputDecoration(
+                                hintText: "Course description",
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
                             ),
                           ),
                         ],
-                      );
-                    }
+                      ),
+                    ),
 
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                    SizedBox(height: 15 * s),
+
+                    // Upload certificate
+                    Obx(
+                      () => Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Certificate (optional)",
+                            style: TextStyle(
+                              fontSize: 13 * s,
+                              color: palette.black.withAlpha(150),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          SizedBox(height: 6 * s),
+                          FilledButton.icon(
+                            style: FilledButton.styleFrom(
+                              backgroundColor: palette.primary,
+                              foregroundColor: palette.accent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 15 * s,
+                                vertical: 10 * s,
+                              ),
+                            ),
+                            onPressed: _pickCertificate,
+                            icon: const Icon(Icons.upload_file),
+                            label: Text(
+                              selectedFileName.isEmpty
+                                  ? "Upload / Change certificate"
+                                  : selectedFileName.value,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 12 * s),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 10 * s),
+
+                    // Categories multi-select
+                    Obx(() {
+                      final categories = courseController.categoryList;
+
+                      if (categories.isEmpty) {
+                        return Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               "Categories",
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 13 * s,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                             TextButton.icon(
                               onPressed: () => _showAddCategoryDialog(context),
                               icon: Icon(Icons.add,
-                                  size: 16, color: palette.primary),
+                                  size: 16 * s, color: palette.primary),
                               label: Text(
-                                "New",
-                                style: TextStyle(color: palette.primary),
+                                "Add category",
+                                style: TextStyle(
+                                  fontSize: 14 * s,
+                                  color: palette.primary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Categories",
+                                style: TextStyle(
+                                  fontSize: 13 * s,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              TextButton.icon(
+                                onPressed: () => _showAddCategoryDialog(context),
+                                icon: Icon(Icons.add,
+                                    size: 16 * s, color: palette.primary),
+                                label: Text(
+                                  "New",
+                                  style: TextStyle(color: palette.primary),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 6 * s),
+                          Wrap(
+                            spacing: 8 * s,
+                            runSpacing: 6 * s,
+                            children: categories.map((cat) {
+                              final isSelected =
+                                  selectedCategories.contains(cat);
+                              return ChoiceChip(
+                                backgroundColor: palette.black.withAlpha(20),
+                                selectedColor: palette.secondary,
+                                label: Text(cat),
+                                showCheckmark: false,
+                                selected: isSelected,
+                                onSelected: (val) {
+                                  if (val) {
+                                    selectedCategories.add(cat);
+                                  } else {
+                                    selectedCategories.remove(cat);
+                                  }
+                                },
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      );
+                    }),
+                    SizedBox(height: 6 * s),
+
+                    // Completed switch
+                    Obx(
+                      () => SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          "Completed",
+                          style: TextStyle(fontSize: 14 * s),
+                        ),
+                        activeColor: palette.accent,
+                        activeTrackColor: palette.primary,
+                        value: isCompleted.value,
+                        onChanged: (val) => isCompleted.value = val,
+                      ),
+                    ),
+                    SizedBox(height: 8 * s),
+
+                    // Buttons row: Delete + Update
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Delete button
+                        TextButton.icon(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (confirmCtx) {
+                                final confirmW =
+                                    MediaQuery.of(context).size.width;
+                                final confirmS = confirmW / 460;
+
+                                return Dialog(
+                                  backgroundColor: palette.bg,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.fromLTRB(
+                                      20 * confirmS,
+                                      18 * confirmS,
+                                      20 * confirmS,
+                                      12 * confirmS,
+                                    ),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Icon(Icons.warning_amber_rounded,
+                                                    color: palette.error),
+                                                SizedBox(width: 8 * confirmS),
+                                                Text(
+                                                  "Delete Course?",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w700,
+                                                    fontSize: 14 * confirmS,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            IconButton(
+                                              icon: const Icon(Icons.close),
+                                              onPressed: () =>
+                                                  Navigator.of(confirmCtx)
+                                                      .pop(),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 8 * confirmS),
+                                        Text(
+                                          "Are you sure you want to delete this course? This action cannot be undone.",
+                                          style: TextStyle(
+                                            fontSize: 13 * confirmS,
+                                            color: palette.black,
+                                          ),
+                                        ),
+                                        SizedBox(height: 16 * confirmS),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(confirmCtx)
+                                                      .pop(),
+                                              child: Text(
+                                                "Cancel",
+                                                style: TextStyle(
+                                                  fontSize: 14 * confirmS,
+                                                  color: palette.primary,
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(width: 8 * confirmS),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                courseController
+                                                    .deleteCourse(index);
+                                                Navigator.of(confirmCtx).pop();
+                                                Navigator.of(ctx).pop();
+                                              },
+                                              style:
+                                                  ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    palette.error,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                              ),
+                                              child: Text(
+                                                "Delete",
+                                                style: TextStyle(
+                                                  fontSize: 14 * confirmS,
+                                                  color: palette.accent,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          icon: Icon(
+                            Icons.delete_outline,
+                            color: palette.error,
+                          ),
+                          label: Text(
+                            "Delete",
+                            style: TextStyle(
+                              fontSize: 13 * s,
+                              color: palette.error,
+                            ),
+                          ),
+                        ),
+                        // Cancel and Update buttons
+                        Row(
+                          children: [
+                            TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(),
+                              child: Text(
+                                "Cancel",
+                                style: TextStyle(
+                                  fontSize: 12 * s,
+                                  color: palette.primary,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 8 * s),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: palette.primary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              onPressed: () {
+                                if (nameController.text.trim().isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "Course name cannot be empty",
+                                      ),
+                                    ),
+                                  );
+                                  return;
+                                }
+
+                                final updatedCourse = CourseModel(
+                                  courseName: nameController.text.trim(),
+                                  isCompleted: isCompleted.value,
+                                  certificationPath:
+                                      certPathController.text.trim(),
+                                  courseDescription:
+                                      descController.text.trim(),
+                                  categories: selectedCategories.toList(),
+                                );
+
+                                courseController.updateCourse(
+                                  index,
+                                  updatedCourse,
+                                );
+                                Navigator.of(ctx).pop();
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 4 * s,
+                                  vertical: 6 * s,
+                                ),
+                                child: Text(
+                                  "Update",
+                                  style: TextStyle(
+                                    fontSize: 12 * s,
+                                    color: palette.accent,
+                                  ),
+                                ),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 6),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 6,
-                          children: categories.map((cat) {
-                            final isSelected =
-                                selectedCategories.contains(cat);
-                            return ChoiceChip(
-                              backgroundColor: palette.black.withAlpha(20),
-                              selectedColor: palette.secondary,
-                              label: Text(cat),
-                              showCheckmark: false,
-                              selected: isSelected,
-                              onSelected: (val) {
-                                if (val) {
-                                  selectedCategories.add(cat);
-                                } else {
-                                  selectedCategories.remove(cat);
-                                }
-                              },
-                            );
-                          }).toList(),
-                        ),
                       ],
-                    );
-                  }),
-                  const SizedBox(height: 6),
-
-                  // Completed switch
-                  Obx(
-                    () => SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(
-                        "Completed",
-                        style: TextStyle(fontSize: 14),
-                      ),
-                      activeColor: palette.accent,
-                      activeTrackColor: palette.primary,
-                      value: isCompleted.value,
-                      onChanged: (val) => isCompleted.value = val,
                     ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Buttons row: Delete + Update
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Delete
-                      TextButton.icon(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (confirmCtx) => Dialog(
-                              backgroundColor: palette.bg,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(18),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                    20, 18, 20, 12),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Icon(Icons.warning_amber_rounded, color: palette.error),
-                                            const SizedBox(width: 8),
-                                            const Text(
-                                              "Delete Course?",
-                                              style: TextStyle(fontWeight: FontWeight.w700),
-                                            ),
-                                          ],
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.close),
-                                          onPressed: () =>
-                                              Navigator.of(confirmCtx).pop(),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      "Are you sure you want to delete this course? This action cannot be undone.",
-                                      style: TextStyle(fontSize: 13, color: palette.black),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.of(confirmCtx).pop(),
-                                          child: Text(
-                                            "Cancel",
-                                            style:
-                                                TextStyle(color: palette.primary),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            courseController
-                                                .deleteCourse(index);
-                                            Navigator.of(confirmCtx).pop();
-                                            Navigator.of(ctx).pop();
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: palette.error,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                          ),
-                                          child: Text(
-                                            "Delete",
-                                            style:
-                                                TextStyle(color: palette.accent),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                        icon: Icon(
-                          Icons.delete_outline,
-                          color: palette.error,
-                        ),
-                        label: Text(
-                          "Delete",
-                          style: TextStyle(color: palette.error),
-                        ),
-                      ),
-
-                      Row(
-                        children: [
-                          TextButton(
-                            onPressed: () => Navigator.of(ctx).pop(),
-                            child: Text(
-                              "Cancel",
-                              style: TextStyle(color: palette.primary),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: palette.primary,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            onPressed: () {
-                              if (nameController.text.trim().isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text("Course name cannot be empty")),
-                                );
-                                return;
-                              }
-
-                              final updatedCourse = CourseModel(
-                                courseName: nameController.text.trim(),
-                                isCompleted: isCompleted.value,
-                                certificationPath: certPathController.text.trim(),
-                                courseDescription: descController.text.trim(),
-                                categories: selectedCategories.toList(),
-                              );
-
-                              courseController.updateCourse(index, updatedCourse);
-                              Navigator.of(ctx).pop();
-
-                              // _showSupportAdDialog(() {
-                              //   courseController.updateCourse(index, updatedCourse);
-                              //   Navigator.of(ctx).pop();
-                              // });
-                              
-                            },
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 6,
-                              ),
-                              child: Text(
-                                "Update",
-                                style: TextStyle(color: palette.accent),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -1250,88 +1355,6 @@ class CourseScreen extends StatelessWidget {
       },
     );
   }
-
-  // void _showSupportAdDialog(VoidCallback onContinue) {
-  //   Get.dialog(
-  //     Dialog(
-  //       shape: RoundedRectangleBorder(
-  //         borderRadius: BorderRadius.circular(18),
-  //       ),
-  //       child: Padding(
-  //         padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-  //         child: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           crossAxisAlignment: CrossAxisAlignment.start,
-  //           children: [
-  //             // ❌ Close button (top-left)
-  //             Align(
-  //               alignment: Alignment.topLeft,
-  //               child: IconButton(
-  //                 icon: const Icon(Icons.close),
-  //                 splashRadius: 20,
-  //                 onPressed: () {
-  //                   Get.back();       // close dialog
-  //                   onContinue();     // continue without ad
-  //                 },
-  //               ),
-  //             ),
-
-  //             const SizedBox(height: 4),
-
-  //             // 🎯 Title
-  //             const Center(
-  //               child: Text(
-  //                 "Support the App",
-  //                 style: TextStyle(
-  //                   fontSize: 18,
-  //                   fontWeight: FontWeight.w700,
-  //                 ),
-  //               ),
-  //             ),
-
-  //             const SizedBox(height: 12),
-
-  //             // 📝 Description
-  //             const Center(
-  //               child: Text(
-  //                 "Watch a short ad to support development and keep the app free.",
-  //                 textAlign: TextAlign.center,
-  //                 style: TextStyle(
-  //                   fontSize: 13,
-  //                   color: Colors.black87,
-  //                 ),
-  //               ),
-  //             ),
-
-  //             const SizedBox(height: 20),
-
-  //             // ▶ Watch Ad button
-  //             SizedBox(
-  //               width: double.infinity,
-  //               child: ElevatedButton.icon(
-  //                 onPressed: () {
-  //                   Get.back();
-  //                   adController.showRewarded(onContinue);
-  //                 },
-  //                 icon: const Icon(Icons.play_circle_fill),
-  //                 label: const Text("Watch Ad"),
-  //                 style: ElevatedButton.styleFrom(
-  //                   padding: const EdgeInsets.symmetric(vertical: 12),
-  //                   shape: RoundedRectangleBorder(
-  //                     borderRadius: BorderRadius.circular(12),
-  //                   ),
-  //                 ),
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //     barrierDismissible: true, // tap outside also skips
-  //   );
-  // }
-
-
 
   // ================== ADD CATEGORY DIALOG ==================
   void _showAddCategoryDialog(BuildContext context) {
@@ -1341,70 +1364,88 @@ class CourseScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) {
+        final w = MediaQuery.of(context).size.width;
+        final s = w / 460;
+
+        // Responsive dialog width
+        final dialogWidth = w > 600 ? 500.0 : w * 0.85;
+
         return Dialog(
+          insetPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
           backgroundColor: palette.bg,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "New Category",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: controller,
-                  decoration: InputDecoration(
-                    labelText: "Category name",
-                    filled: true,
-                    fillColor: palette.black.withAlpha(10),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: dialogWidth),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(20 * s, 20 * s, 20 * s, 10 * s),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "New Category",
+                    style: TextStyle(
+                      fontSize: 16 * s,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.of(ctx).pop(),
-                      child: Text(
-                        "Cancel",
-                        style: TextStyle(color: palette.primary),
+                  SizedBox(height: 12 * s),
+                  TextField(
+                    controller: controller,
+                    style: TextStyle(fontSize: 14 * s),
+                    decoration: InputDecoration(
+                      labelText: "Category name",
+                      labelStyle: TextStyle(fontSize: 14 * s),
+                      filled: true,
+                      fillColor: palette.black.withAlpha(10),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: () {
-                        final name = controller.text.trim();
-                        if (name.isNotEmpty) {
-                          courseController.addCategory(name);
-                        }
-                        Navigator.of(ctx).pop();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: palette.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                  ),
+                  SizedBox(height: 16 * s),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(),
+                        child: Text(
+                          "Cancel",
+                          style: TextStyle(
+                            fontSize: 14 * s,
+                            color: palette.primary,
+                          ),
                         ),
                       ),
-                      child: Text(
-                        "Add",
-                        style: TextStyle(color: palette.accent),
+                      SizedBox(width: 8 * s),
+                      ElevatedButton(
+                        onPressed: () {
+                          final name = controller.text.trim();
+                          if (name.isNotEmpty) {
+                            courseController.addCategory(name);
+                          }
+                          Navigator.of(ctx).pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: palette.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          "Add",
+                          style: TextStyle(
+                            fontSize: 14 * s,
+                            color: palette.accent,
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         );

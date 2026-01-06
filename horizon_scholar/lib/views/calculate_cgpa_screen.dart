@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 
 import '../controllers/cgpa_calc_controller.dart';
 import '../models/subject_model.dart';
-
 import '../../controllers/theme_controller.dart';
 
 class CalculateCgpaScreen extends StatefulWidget {
@@ -14,11 +13,8 @@ class CalculateCgpaScreen extends StatefulWidget {
 }
 
 class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
-
-
   final CgpaCalcController calcController = Get.find<CgpaCalcController>();
   final ThemeController themeController = Get.find<ThemeController>();
-
 
   int _selectedSemester = 1;
 
@@ -26,11 +22,27 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
     return all.where((s) => s.semester == sem).toList();
   }
 
-  // ------------------- BUILD -------------------
+  // ============== BUILD ==============
 
   @override
   Widget build(BuildContext context) {
     final palette = themeController.palette;
+    final screenSize = MediaQuery.of(context).size;
+    final screenWidth = screenSize.width;
+
+    // Improved responsive scaling
+    final isMobile = screenWidth < 600;
+    final isTablet = screenWidth >= 600 && screenWidth < 1200;
+
+    // Dynamic scaling factor with better breakpoints
+    late double s;
+    if (isMobile) {
+      s = screenWidth / 460; // Original mobile scaling
+    } else if (isTablet) {
+      s = screenWidth / 600; // Tablet scaling
+    } else {
+      s = screenWidth / 800; // Desktop scaling
+    }
 
     return Scaffold(
       backgroundColor: palette.bg,
@@ -41,9 +53,10 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
         title: Text(
           "Calculate CGPA",
           style: TextStyle(
-            fontSize: 22,
+            fontSize: isMobile ? 20 * s : 24 * s,
             color: palette.black,
-            fontFamily: 'Righteous'
+            fontFamily: 'Righteous',
+            fontWeight: FontWeight.w700,
           ),
         ),
         centerTitle: false,
@@ -61,282 +74,22 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
           return Column(
             children: [
               // TOP SUMMARY CARD
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-                child: Container(
-                  width: double.infinity,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: palette.primary,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // CGPA text
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            cgpa == 0.0 ? "--" : cgpa.toStringAsFixed(2),
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 32,
-                              color: palette.accent,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            "Current CGPA",
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: palette.accent.withAlpha(150),
-                            ),
-                          ),
-                        ],
-                      ),
+              _buildSummaryCard(palette, s, isMobile, cgpa, gpaMap),
 
-                      // Sem-wise GPA summary
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            "Semester $_selectedSemester GPA",
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: palette.accent,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          if (gpaMap.isEmpty)
-                            Text(
-                              "No data",
-                              style: TextStyle(fontSize: 12, color: palette.accent),
-                            )
-                          else
-                            Text(
-                              gpaMap[_selectedSemester]==null?"--":"${gpaMap[_selectedSemester]?.toStringAsFixed(2)}",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                                color: palette.accent
-                              ),
-                            )
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              SizedBox(height: 6 * s),
 
               // SEMESTER CHIPS + ADD SUBJECT
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: List.generate(8, (index) {
-                            final sem = index + 1;
-                            final isSelected = _selectedSemester == sem;
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 8.0),
-                              child: ChoiceChip(
-                                label: Text(
-                                  "Sem $sem",
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                                selected: isSelected,
-                                showCheckmark: false,
-                                selectedColor: palette.primary,
-                                backgroundColor: palette.black.withAlpha(20),
-                                labelStyle: TextStyle(
-                                  color: isSelected
-                                      ? palette.accent
-                                      : palette.black,
-                                ),
-                                onSelected: (_) {
-                                  setState(() {
-                                    _selectedSemester = sem;
-                                  });
-                                },
-                              ),
-                            );
-                          }),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: () => _showAddSubjectOptions(
-                        context,
-                        _selectedSemester,
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: palette.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.all(10),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.add, color: palette.accent),
-                          const SizedBox(width: 4),
-                          Text(
-                            "Subject",
-                            style: TextStyle(
-                              color: palette.accent,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      )
-                    ),
-                  ],
-                ),
-              ),
+              _buildSemesterBar(context, palette, s, isMobile),
 
-              const SizedBox(height: 6),
+              SizedBox(height: 6 * s),
 
               // SUBJECT LIST
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: subjectsForSem.isEmpty
-                      ? Center(
-                          child: Text(
-                            "No subjects for this semester.\nTap + to add.",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: palette.black.withAlpha(150),
-                            ),
-                          ),
-                        )
-                      : ListView.builder(
-                          itemCount: subjectsForSem.length,
-                          itemBuilder: (context, index) {
-                            final subject = subjectsForSem[index];
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 10),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 10,
-                              ),
-                              decoration: BoxDecoration(
-                                color: palette.accent,
-                                borderRadius: BorderRadius.circular(14),
-                                boxShadow: [
-                                  BoxShadow(
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
-                                    color: palette.black.withAlpha(10),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  // subject name & credits (and code)
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          subject.code.isNotEmpty
-                                              ? "${subject.code} - ${subject.name}"
-                                              : subject.name,
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            color: palette.black,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          "${subject.credits.toStringAsFixed(1)} credits",
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            color: palette.black.withAlpha(150),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  const SizedBox(width: 8),
-
-                                  // grade dropdown
-                                  SizedBox(
-                                    width: 110,
-                                    child: DropdownButtonFormField<String>(
-                                      value: subject.grade.isEmpty
-                                          ? null
-                                          : subject.grade,
-                                      items: calcController.gradePoints.keys
-                                          .map(
-                                            (g) => DropdownMenuItem(
-                                              value: g,
-                                              child: Text(g),
-                                            ),
-                                          )
-                                          .toList(),
-                                      hint: const Text("Grade"),
-                                      onChanged: (val) {
-                                        if (val != null) {
-                                          calcController.updateSubjectGrade(
-                                            subject,
-                                            val,
-                                          );
-                                        }
-                                      },
-                                      decoration: InputDecoration(
-                                        isDense: true,
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 8,
-                                        ),
-                                        filled: true,
-                                        fillColor: palette.black.withAlpha(20),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          borderSide: BorderSide.none,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-
-                                  const SizedBox(width: 4),
-
-                                  // delete subject
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.delete_outline,
-                                      size: 20,
-                                      color: palette.error,
-                                    ),
-                                    onPressed: () {
-                                      _showDeleteConfirmation(
-                                        context,
-                                        subject,
-                                        palette,
-                                      );
-                                    },
-                                  ),
-
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                ),
+              _buildSubjectList(
+                context,
+                palette,
+                s,
+                isMobile,
+                subjectsForSem,
               ),
             ],
           );
@@ -345,10 +98,328 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
     );
   }
 
+  // ============== SUMMARY CARD ==============
+  Widget _buildSummaryCard(
+    AppPalette palette,
+    double s,
+    bool isMobile,
+    double cgpa,
+    Map<int, double> gpaMap,
+  ) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20 * s, 8 * s, 20 * s, 8 * s),
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 25 * s, horizontal: 25 * s),
+        decoration: BoxDecoration(
+          color: palette.primary,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: SingleChildScrollView(
+          //scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // CGPA text
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    cgpa == 0.0 ? "--" : cgpa.toStringAsFixed(2),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: isMobile ? 28 * s : 32 * s,
+                      color: palette.accent,
+                    ),
+                  ),
+                  SizedBox(height: 4 * s),
+                  Text(
+                    "Current CGPA",
+                    style: TextStyle(
+                      fontSize: isMobile ? 11 * s : 12 * s,
+                      color: palette.accent.withAlpha(150),
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(width: 24 * s),
+
+              // Sem-wise GPA summary
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    "Semester $_selectedSemester GPA",
+                    style: TextStyle(
+                      fontSize: isMobile ? 11 * s : 12 * s,
+                      color: palette.accent,
+                    ),
+                  ),
+                  SizedBox(height: 4 * s),
+                  if (gpaMap.isEmpty)
+                    Text(
+                      "No data",
+                      style: TextStyle(
+                        fontSize: isMobile ? 11 * s : 12 * s,
+                        color: palette.accent,
+                      ),
+                    )
+                  else
+                    Text(
+                      gpaMap[_selectedSemester] == null
+                          ? "--"
+                          : "${gpaMap[_selectedSemester]?.toStringAsFixed(2)}",
+                      style: TextStyle(
+                        fontSize: isMobile ? 18 * s : 20 * s,
+                        fontWeight: FontWeight.w600,
+                        color: palette.accent,
+                      ),
+                    )
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ============== SEMESTER BAR ==============
+  Widget _buildSemesterBar(
+    BuildContext context,
+    AppPalette palette,
+    double s,
+    bool isMobile,
+  ) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20 * s, vertical: 4 * s),
+      child: Row(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: List.generate(8, (index) {
+                  final sem = index + 1;
+                  final isSelected = _selectedSemester == sem;
+                  return Padding(
+                    padding: EdgeInsets.only(right: 8.0 * s),
+                    child: ChoiceChip(
+                      label: Text(
+                        "Sem $sem",
+                        style: TextStyle(fontSize: isMobile ? 11 * s : 12 * s),
+                      ),
+                      selected: isSelected,
+                      showCheckmark: false,
+                      selectedColor: palette.primary,
+                      backgroundColor: palette.black.withAlpha(20),
+                      labelStyle: TextStyle(
+                        color: isSelected ? palette.accent : palette.black,
+                      ),
+                      onSelected: (_) {
+                        setState(() {
+                          _selectedSemester = sem;
+                        });
+                      },
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ),
+          SizedBox(width: 8 * s),
+          ElevatedButton(
+            onPressed: () => _showAddSubjectOptions(
+              context,
+              _selectedSemester,
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: palette.primary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 15*s,vertical:9 * s),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.add, color: palette.accent, size: 18 * s),
+                SizedBox(width: 4 * s),
+                Text(
+                  "Subject",
+                  style: TextStyle(
+                    color: palette.accent,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12 * s,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============== SUBJECT LIST ==============
+  Widget _buildSubjectList(
+    BuildContext context,
+    AppPalette palette,
+    double s,
+    bool isMobile,
+    List<SubjectModel> subjectsForSem,
+  ) {
+    return Expanded(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20 * s),
+        child: subjectsForSem.isEmpty
+            ? Center(
+                child: Text(
+                  "No subjects for this semester.\nTap + to add.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: isMobile ? 12 * s : 13 * s,
+                    color: palette.black.withAlpha(150),
+                  ),
+                ),
+              )
+            : ListView.builder(
+                padding: EdgeInsets.only(bottom: 20 * s),
+                itemCount: subjectsForSem.length,
+                itemBuilder: (context, index) {
+                  final subject = subjectsForSem[index];
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 10 * s),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12 * s,
+                      vertical: 10 * s,
+                    ),
+                    decoration: BoxDecoration(
+                      color: palette.accent,
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                          color: palette.black.withAlpha(10),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        // subject name & credits (and code)
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                subject.code.isNotEmpty
+                                    ? "${subject.code} - ${subject.name}"
+                                    : subject.name,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: isMobile ? 13 * s : 14 * s,
+                                  fontWeight: FontWeight.w600,
+                                  color: palette.black,
+                                ),
+                              ),
+                              SizedBox(height: 4 * s),
+                              Text(
+                                "${subject.credits.toStringAsFixed(1)} credits",
+                                style: TextStyle(
+                                  fontSize: isMobile ? 10 * s : 11 * s,
+                                  color: palette.black.withAlpha(150),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(width: 8 * s),
+
+                        // grade dropdown
+                        SizedBox(
+                          width: isMobile ? 100 * s : 110 * s,
+                          child: DropdownButtonFormField<String>(
+                            value: subject.grade.isEmpty ? null : subject.grade,
+                            items: calcController.gradePoints.keys
+                                .map(
+                                  (g) => DropdownMenuItem(
+                                    value: g,
+                                    child: Text(
+                                      g,
+                                      style: TextStyle(fontSize: 12 * s),
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                            hint: Text(
+                              "Grade",
+                              style: TextStyle(fontSize: 12 * s),
+                            ),
+                            onChanged: (val) {
+                              if (val != null) {
+                                calcController.updateSubjectGrade(
+                                  subject,
+                                  val,
+                                );
+                              }
+                            },
+                            decoration: InputDecoration(
+                              isDense: true,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 10 * s,
+                                vertical: 8 * s,
+                              ),
+                              filled: true,
+                              fillColor: palette.black.withAlpha(20),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(width: 4 * s),
+
+                        // delete subject
+                        IconButton(
+                          icon: Icon(
+                            Icons.delete_outline,
+                            size: isMobile ? 18 * s : 20 * s,
+                            color: palette.error,
+                          ),
+                          padding: EdgeInsets.zero,
+                          constraints: BoxConstraints(
+                            minWidth: 36 * s,
+                            minHeight: 36 * s,
+                          ),
+                          onPressed: () {
+                            _showDeleteConfirmation(
+                              context,
+                              subject,
+                              palette,
+                              s,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+      ),
+    );
+  }
+
+  // ============== DELETE CONFIRMATION ==============
   void _showDeleteConfirmation(
     BuildContext context,
     SubjectModel subject,
-    palette,
+    AppPalette palette,
+    double s,
   ) {
     showDialog(
       context: context,
@@ -361,10 +432,15 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
           title: Row(
             children: [
               Icon(Icons.warning_amber_rounded, color: palette.error),
-              const SizedBox(width: 8),
-              const Text(
-                "Delete Subject?",
-                style: TextStyle(fontWeight: FontWeight.w700),
+              SizedBox(width: 8 * s),
+              Expanded(
+                child: Text(
+                  "Delete Subject?",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14 * s,
+                  ),
+                ),
               ),
             ],
           ),
@@ -373,14 +449,17 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
             "• CGPA calculation\n"
             "• Internal marks page\n\n"
             "This action cannot be undone.",
-            style: TextStyle(fontSize: 13, color: palette.black),
+            style: TextStyle(
+              fontSize: 13 * s,
+              color: palette.black,
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
               child: Text(
                 "Cancel",
-                style: TextStyle(color: palette.primary),
+                style: TextStyle(color: palette.primary, fontSize: 12 * s),
               ),
             ),
             ElevatedButton(
@@ -391,7 +470,7 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                 ),
               ),
               onPressed: () async {
-                Navigator.of(ctx).pop(); // close dialog
+                Navigator.of(ctx).pop();
 
                 await calcController.removeSubjectAndCleanup(subject);
 
@@ -405,9 +484,12 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                   );
                 }
               },
-              child: const Text(
+              child: Text(
                 "Delete",
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12 * s,
+                ),
               ),
             ),
           ],
@@ -416,20 +498,27 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
     );
   }
 
-  // ------------------- SUBJECT PICKER (TEMPLATES) -------------------
+  // ============== SUBJECT PICKER (TEMPLATES) ==============
 
   void _showSubjectPickerBottomSheet(BuildContext context, int semester) {
-    // Local reactive variable for the search results
-    // This decouples the search list from the global Obx
     final filteredSubjects = <SubjectModel>[].obs;
-    
-    // Initialize with all subjects sorted
+
     final allTemplates = calcController.templates;
     allTemplates.sort((a, b) => a.code.compareTo(b.code));
     filteredSubjects.assignAll(allTemplates);
 
     final palette = themeController.palette;
+    final screenSize = MediaQuery.of(context).size;
+    final screenWidth = screenSize.width;
 
+    late double s;
+    if (screenWidth < 600) {
+      s = screenWidth / 460;
+    } else if (screenWidth >= 600 && screenWidth < 1200) {
+      s = screenWidth / 600;
+    } else {
+      s = screenWidth / 800;
+    }
 
     showModalBottomSheet(
       context: context,
@@ -446,17 +535,17 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
           maxChildSize: 0.9,
           builder: (_, scrollController) {
             return Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+              padding: EdgeInsets.fromLTRB(20 * s, 16 * s, 20 * s, 20 * s),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Header
                   Row(
                     children: [
-                      const Text(
+                      Text(
                         "Choose Subject",
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 16 * s,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -467,7 +556,7 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8 * s),
 
                   // Search box
                   TextField(
@@ -495,7 +584,7 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12 * s),
 
                   // List of subjects
                   Expanded(
@@ -505,7 +594,10 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                           child: Text(
                             "No subjects found.\nTap 'Add new subject manually' instead.",
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 13, color: palette.black),
+                            style: TextStyle(
+                              fontSize: 13 * s,
+                              color: palette.black,
+                            ),
                           ),
                         );
                       }
@@ -520,10 +612,8 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                             semester: semester,
                           );
 
-
-                          final displayCode = subject.code.isEmpty
-                              ? "No Code"
-                              : subject.code;
+                          final displayCode =
+                              subject.code.isEmpty ? "No Code" : subject.code;
 
                           return Card(
                             color: palette.accent,
@@ -531,42 +621,48 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: ListTile(
-                                enabled: !alreadyAdded,
-                                title: Text(
-                                  "$displayCode - ${subject.name}",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    color: alreadyAdded ? palette.black.withAlpha(120) : palette.black,
-                                  ),
+                              enabled: !alreadyAdded,
+                              title: Text(
+                                "$displayCode - ${subject.name}",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13 * s,
+                                  color: alreadyAdded
+                                      ? palette.black.withAlpha(120)
+                                      : palette.black,
                                 ),
-                                subtitle: Text(
-                                  alreadyAdded
-                                      ? "Already added to this semester"
-                                      : "${subject.credits.toStringAsFixed(1)} credits",
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                                trailing: alreadyAdded
-                                    ? const Icon(Icons.check_circle, color: Colors.green)
-                                    : null,
-                                onTap: alreadyAdded
-                                    ? null
-                                    : () async {
-                                        await calcController.addSubjectFromTemplate(
-                                          subject,
-                                          semester,
-                                        );
-                                        await calcController.recalculateAll();
-                                        if (context.mounted) Navigator.of(ctx).pop();
-                                      },
-                              )
-
+                              ),
+                              subtitle: Text(
+                                alreadyAdded
+                                    ? "Already added to this semester"
+                                    : "${subject.credits.toStringAsFixed(1)} credits",
+                                style: TextStyle(fontSize: 12 * s),
+                              ),
+                              trailing: alreadyAdded
+                                  ? const Icon(Icons.check_circle,
+                                      color: Colors.green)
+                                  : null,
+                              onTap: alreadyAdded
+                                  ? null
+                                  : () async {
+                                      await calcController
+                                          .addSubjectFromTemplate(
+                                        subject,
+                                        semester,
+                                      );
+                                      await calcController.recalculateAll();
+                                      if (context.mounted) {
+                                        Navigator.of(ctx).pop();
+                                      }
+                                    },
+                            ),
                           );
                         },
                       );
                     }),
                   ),
 
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8 * s),
 
                   // Add new button at bottom
                   Align(
@@ -578,12 +674,15 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                       },
                       icon: Icon(
                         Icons.add,
-                        size: 18,
+                        size: 18 * s,
                         color: palette.primary,
                       ),
                       label: Text(
                         "Can't find your subject? Add manually",
-                        style: TextStyle(color: palette.primary),
+                        style: TextStyle(
+                          color: palette.primary,
+                          fontSize: 12 * s,
+                        ),
                       ),
                     ),
                   ),
@@ -596,12 +695,22 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
     );
   }
 
-  // ------------------- DEPT-BASED SUBJECT PICKER (OPTIMIZED) -------------------
+  // ============== DEPT-BASED SUBJECT PICKER ==============
 
   void _showDeptBasedSubjectPicker(BuildContext context, int semester) {
     final palette = themeController.palette;
+    final screenSize = MediaQuery.of(context).size;
+    final screenWidth = screenSize.width;
 
-    // UI values
+    late double siz;
+    if (screenWidth < 600) {
+      siz = screenWidth / 460;
+    } else if (screenWidth >= 600 && screenWidth < 1200) {
+      siz = screenWidth / 600;
+    } else {
+      siz = screenWidth / 800;
+    }
+
     final regs = ['2021', '2023'];
     final depts = [
       {'code': 'CB', 'label': 'CSBS'},
@@ -617,14 +726,9 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
 
     final selectedReg = RxnString();
     final selectedDept = RxnString();
-
-    // Selected subject codes
     final selectedCodes = <String>{}.obs;
-
-    // Filtered templates
     final filteredSubjects = <SubjectModel>[].obs;
 
-    /// 🔹 Heavy filter logic (runs ONLY on dropdown change)
     void updateFiltered() {
       final reg = selectedReg.value;
       final dept = selectedDept.value;
@@ -647,22 +751,17 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
       filteredSubjects.assignAll(result);
     }
 
-    /// 🔹 Section builder
-    Widget section(
-      String title,
-      List<SubjectModel> list,
-    ) {
+    Widget section(String title, List<SubjectModel> list) {
       if (list.isEmpty) return const SizedBox();
-
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(6, 12, 6, 6),
+            padding: EdgeInsets.fromLTRB(6 * siz, 12 * siz, 6 * siz, 6 * siz),
             child: Text(
               title,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 14 * siz,
                 fontWeight: FontWeight.bold,
                 color: palette.primary,
               ),
@@ -695,6 +794,7 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                     "${s.code} - ${s.name}",
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
+                      fontSize: 13 * siz,
                       color: alreadyAdded
                           ? palette.black.withAlpha(120)
                           : palette.black,
@@ -704,7 +804,7 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                     alreadyAdded
                         ? "Already added"
                         : "${s.credits.toStringAsFixed(1)} credits",
-                    style: const TextStyle(fontSize: 12),
+                    style: TextStyle(fontSize: 12 * siz),
                   ),
                 );
               }),
@@ -729,17 +829,17 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
           maxChildSize: 0.95,
           builder: (_, scrollController) {
             return Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+              padding: EdgeInsets.fromLTRB(20 * siz, 16 * siz, 20 * siz, 20 * siz),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // HEADER
                   Row(
                     children: [
-                      const Text(
+                      Text(
                         "Choose by Department",
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 16 * siz,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -750,7 +850,7 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12 * siz),
 
                   // REGULATION
                   Obx(() {
@@ -758,6 +858,7 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                       value: selectedReg.value,
                       decoration: InputDecoration(
                         labelText: "Regulation",
+                        labelStyle: TextStyle(fontSize: 13 * siz),
                         filled: true,
                         fillColor: palette.accent,
                         border: OutlineInputBorder(
@@ -768,7 +869,10 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                       items: regs
                           .map((r) => DropdownMenuItem(
                                 value: r,
-                                child: Text("Reg $r"),
+                                child: Text(
+                                  "Reg $r",
+                                  style: TextStyle(fontSize: 13 * siz),
+                                ),
                               ))
                           .toList(),
                       onChanged: (val) {
@@ -778,7 +882,7 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                       },
                     );
                   }),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10 * siz),
 
                   // DEPARTMENT
                   Obx(() {
@@ -786,6 +890,7 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                       value: selectedDept.value,
                       decoration: InputDecoration(
                         labelText: "Department",
+                        labelStyle: TextStyle(fontSize: 13 * siz),
                         filled: true,
                         fillColor: palette.accent,
                         border: OutlineInputBorder(
@@ -796,7 +901,10 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                       items: depts
                           .map((d) => DropdownMenuItem(
                                 value: d['code'],
-                                child: Text(d['label']!),
+                                child: Text(
+                                  d['label']!,
+                                  style: TextStyle(fontSize: 13 * siz),
+                                ),
                               ))
                           .toList(),
                       onChanged: (val) {
@@ -806,7 +914,7 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                       },
                     );
                   }),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12 * siz),
 
                   // SUBJECT LIST
                   Expanded(
@@ -818,7 +926,7 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                             "Select regulation and department\nfor Semester $semester",
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 13 * siz,
                               color: palette.black,
                             ),
                           ),
@@ -830,7 +938,7 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                           child: Text(
                             "No subjects mapped for this combination.",
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 13 * siz,
                               color: palette.black,
                             ),
                           ),
@@ -851,7 +959,7 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                     }),
                   ),
 
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8 * siz),
 
                   // ADD BUTTON
                   Obx(() {
@@ -866,7 +974,7 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          padding: EdgeInsets.symmetric(vertical: 14 * siz),
                         ),
                         onPressed: enabled
                             ? () async {
@@ -901,7 +1009,10 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                           enabled
                               ? "Add selected subjects"
                               : "Select subjects to add",
-                          style: TextStyle(color: palette.accent),
+                          style: TextStyle(
+                            color: palette.accent,
+                            fontSize: 13 * siz,
+                          ),
                         ),
                       ),
                     );
@@ -915,11 +1026,22 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
     );
   }
 
-
-  // ------------------- ADD SUBJECT OPTIONS SHEET -------------------
+  // ============== ADD SUBJECT OPTIONS ==============
 
   void _showAddSubjectOptions(BuildContext context, int semester) {
     final palette = themeController.palette;
+    final screenSize = MediaQuery.of(context).size;
+    final screenWidth = screenSize.width;
+
+    late double s;
+    if (screenWidth < 600) {
+      s = screenWidth / 460;
+    } else if (screenWidth >= 600 && screenWidth < 1200) {
+      s = screenWidth / 600;
+    } else {
+      s = screenWidth / 800;
+    }
+
     showModalBottomSheet(
       context: context,
       backgroundColor: palette.bg,
@@ -928,17 +1050,17 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
       ),
       builder: (ctx) {
         return Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+          padding: EdgeInsets.fromLTRB(20 * s, 16 * s, 20 * s, 20 * s),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const Text(
+                  Text(
                     "Add subject to semester",
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 16 * s,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -949,32 +1071,39 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12 * s),
               ListTile(
                 leading: const Icon(Icons.account_tree_outlined),
-                title: const Text("Choose using department"),
-                subtitle: const Text(
+                title: Text(
+                  "Choose using department",
+                  style: TextStyle(fontSize: 16 * s),
+                ),
+                subtitle: Text(
                   "Regulation • Department • Multi-select",
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 12 * s),
                 ),
                 onTap: () {
                   Navigator.of(ctx).pop();
                   _showDeptBasedSubjectPicker(context, semester);
                 },
               ),
-              
               ListTile(
                 leading: const Icon(Icons.list_alt_outlined),
-                title: const Text("Choose from subject list"),
+                title: Text(
+                  "Choose from subject list",
+                  style: TextStyle(fontSize: 16 * s),
+                ),
                 onTap: () {
                   Navigator.of(ctx).pop();
                   _showSubjectPickerBottomSheet(context, semester);
                 },
               ),
-              
               ListTile(
                 leading: const Icon(Icons.add),
-                title: const Text("Add new subject manually"),
+                title: Text(
+                  "Add new subject manually",
+                  style: TextStyle(fontSize: 16 * s),
+                ),
                 onTap: () {
                   Navigator.of(ctx).pop();
                   _showAddSubjectDialog(context, semester);
@@ -987,7 +1116,7 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
     );
   }
 
-  // ------------------- ADD SUBJECT DIALOG (MANUAL) -------------------
+  // ============== ADD SUBJECT DIALOG ==============
 
   void _showAddSubjectDialog(BuildContext context, int semester) {
     final nameCtrl = TextEditingController();
@@ -995,6 +1124,18 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
     final creditsCtrl = TextEditingController();
     final palette = themeController.palette;
     final isDuplicate = false.obs;
+
+    final screenSize = MediaQuery.of(context).size;
+    final screenWidth = screenSize.width;
+
+    late double s;
+    if (screenWidth < 600) {
+      s = screenWidth / 460;
+    } else if (screenWidth >= 600 && screenWidth < 1200) {
+      s = screenWidth / 600;
+    } else {
+      s = screenWidth / 800;
+    }
 
     showDialog(
       context: context,
@@ -1005,7 +1146,7 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
             borderRadius: BorderRadius.circular(18),
           ),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
+            padding: EdgeInsets.fromLTRB(20 * s, 18 * s, 20 * s, 10 * s),
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -1015,10 +1156,10 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         "Add Subject",
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 18 * s,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -1028,7 +1169,7 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10 * s),
 
                   // Subject code
                   TextField(
@@ -1039,8 +1180,10 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                         semester: semester,
                       );
                     },
+                    style: TextStyle(fontSize: 13 * s),
                     decoration: InputDecoration(
                       labelText: "Subject Code",
+                      labelStyle: TextStyle(fontSize: 12 * s),
                       errorText: isDuplicate.value ? "Subject already exists" : null,
                       prefixIcon: const Icon(Icons.qr_code_2),
                       filled: true,
@@ -1052,13 +1195,15 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10 * s),
 
                   // Subject name
                   TextField(
                     controller: nameCtrl,
+                    style: TextStyle(fontSize: 13 * s),
                     decoration: InputDecoration(
                       labelText: "Subject Name",
+                      labelStyle: TextStyle(fontSize: 12 * s),
                       floatingLabelBehavior: FloatingLabelBehavior.never,
                       prefixIcon: const Icon(Icons.menu_book_outlined),
                       filled: true,
@@ -1069,14 +1214,16 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10 * s),
 
                   // Credits
                   TextField(
                     controller: creditsCtrl,
                     keyboardType: TextInputType.number,
+                    style: TextStyle(fontSize: 13 * s),
                     decoration: InputDecoration(
                       labelText: "Credits",
+                      labelStyle: TextStyle(fontSize: 12 * s),
                       floatingLabelBehavior: FloatingLabelBehavior.never,
                       prefixIcon: const Icon(Icons.numbers),
                       filled: true,
@@ -1088,7 +1235,7 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16 * s),
 
                   // Buttons
                   Row(
@@ -1098,69 +1245,83 @@ class _CalculateCgpaScreenState extends State<CalculateCgpaScreen> {
                         onPressed: () => Navigator.of(ctx).pop(),
                         child: Text(
                           "Cancel",
-                          style: TextStyle(color: palette.primary),
+                          style: TextStyle(
+                            color: palette.primary,
+                            fontSize: 12 * s,
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Obx((){
+                      SizedBox(width: 8 * s),
+                      Obx(() {
                         return ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: isDuplicate.value
-                              ? palette.black.withAlpha(150)
-                              : palette.primary,
+                                ? palette.black.withAlpha(150)
+                                : palette.primary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
                           onPressed: isDuplicate.value
-                            ? null: () async {
-                            final name = nameCtrl.text.trim();
-                            final code = codeCtrl.text.trim();
-                            final creditsStr = creditsCtrl.text.trim();
-                            final grade = "O";
+                              ? null
+                              : () async {
+                                  final name = nameCtrl.text.trim();
+                                  final code = codeCtrl.text.trim();
+                                  final creditsStr = creditsCtrl.text.trim();
+                                  final grade = "O";
 
-                            if (name.isEmpty ||
-                                code.isEmpty ||
-                                creditsStr.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    "Code, name and credits are required",
-                                  ),
-                                ),
-                              );
-                              return;
-                            }
+                                  if (name.isEmpty ||
+                                      code.isEmpty ||
+                                      creditsStr.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          "Code, name and credits are required",
+                                          style: TextStyle(fontSize: 12 * s),
+                                        ),
+                                      ),
+                                    );
+                                    return;
+                                  }
 
-                            final credits = double.tryParse(creditsStr) ?? 0;
-                            if (credits <= 0) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Credits must be > 0"),
-                                ),
-                              );
-                              return;
-                            }
+                                  final credits =
+                                      double.tryParse(creditsStr) ?? 0;
+                                  if (credits <= 0) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          "Credits must be > 0",
+                                          style: TextStyle(fontSize: 12 * s),
+                                        ),
+                                      ),
+                                    );
+                                    return;
+                                  }
 
-                            await calcController.addSubject(
-                              name: name,
-                              code: code,
-                              credits: credits,
-                              semester: semester,
-                              grade: grade.isEmpty ? "" : grade,
-                            );
+                                  await calcController.addSubject(
+                                    name: name,
+                                    code: code,
+                                    credits: credits,
+                                    semester: semester,
+                                    grade:
+                                        grade.isEmpty ? "" : grade,
+                                  );
 
-                            if (context.mounted) Navigator.of(ctx).pop();
-                          },
-                          
+                                  if (context.mounted) {
+                                    Navigator.of(ctx).pop();
+                                  }
+                                },
                           child: Padding(
                             padding: EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 6,
+                              horizontal: 10 * s,
+                              vertical: 6 * s,
                             ),
                             child: Text(
                               "Save",
-                              style: TextStyle(color: palette.accent),
+                              style: TextStyle(
+                                color: palette.accent,
+                                fontSize: 12 * s,
+                              ),
                             ),
                           ),
                         );
